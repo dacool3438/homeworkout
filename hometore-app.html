@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>逆三角形メイキング 4週プログラム</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+
+:root{
+  --bg: #121214;
+  --bg-card: #1b1b1e;
+  --bg-card-elevated: #222226;
+  --line: #2a2a2e;
+  --text: #f2f0ec;
+  --text-dim: #93939a;
+  --text-faint: #5c5c62;
+  --accent-red: #e8432f;
+  --accent-gold: #f2b134;
+  --chest: #e8432f;
+  --shoulder: #f2b134;
+  --back: #4d92a8;
+  --arms: #8b7ec8;
+  --legs: #5fa377;
+  --ok: #5fa377;
+  --cardio: #3fb8af;
+}
+
+*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent;}
+
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height:100vh;
+  padding-bottom: 40px;
+  position: relative;
+}
+
+/* On wide screens, constrain to a phone-like column and give the page
+   itself a neutral surrounding backdrop so it doesn't stretch edge to edge. */
+@media (min-width: 640px){
+  html{ background: #0a0a0b; }
+  body{
+    max-width: 460px;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-shadow: 0 0 60px rgba(0,0,0,0.5);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  .app-header{ position: sticky; top:0; }
+}
+
+.num{font-family:'Bebas Neue', 'Noto Sans JP', sans-serif; letter-spacing: 0.02em;}
+
+/* ---------- HEADER ---------- */
+.app-header{
+  padding: 22px 18px 14px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top:0;
+  background: linear-gradient(180deg, var(--bg) 80%, transparent);
+  z-index: 20;
+  backdrop-filter: blur(6px);
+}
+.eyebrow{
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+.title{
+  font-size: 22px;
+  font-weight: 900;
+  margin-top: 4px;
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+}
+.title .num{font-size:30px; color:var(--accent-red);}
+
+.week-row{
+  display:flex;
+  gap:8px;
+  margin-top:16px;
+  overflow-x:auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.week-row::-webkit-scrollbar{ display:none;}
+.week-chip{
+  flex: 0 0 auto;
+  width: 54px;
+  text-align:center;
+  padding:10px 0;
+  border-radius: 10px;
+  border:1px solid var(--line);
+  background: var(--bg-card);
+  font-family:'Bebas Neue';
+  font-size:16px;
+  color: var(--text-dim);
+  cursor:pointer;
+  position:relative;
+}
+.week-chip .wk-label{
+  display:block;
+  font-family:'Noto Sans JP';
+  font-size:9px;
+  letter-spacing:0.05em;
+  margin-top:2px;
+  font-weight:500;
+}
+.week-chip.active{
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: #fff;
+}
+.week-chip.active .wk-label{color: rgba(255,255,255,0.85);}
+.week-chip.add{
+  border-style: dashed;
+  color: var(--accent-gold);
+  font-size: 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.week-chip.add .wk-label{display:none;}
+
+/* ---------- DAY TABS ---------- */
+.day-tabs{
+  display:flex;
+  gap:6px;
+  padding: 14px 18px 0;
+  overflow-x:auto;
+}
+.day-tab{
+  flex:1;
+  min-width: 76px;
+  text-align:center;
+  padding: 10px 6px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  cursor:pointer;
+}
+.day-tab .dow{
+  font-family:'Bebas Neue';
+  font-size:20px;
+  color: var(--text);
+}
+.day-tab .part{
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  font-weight:500;
+}
+.day-tab.active{
+  border-color: var(--accent-gold);
+  background: linear-gradient(160deg, rgba(242,177,52,0.14), var(--bg-card));
+}
+.day-tab.active .dow{color: var(--accent-gold);}
+
+/* ---------- DAY INFO / PROGRESS RING ---------- */
+.day-info{
+  padding: 18px 18px 4px;
+  display:flex;
+  align-items:center;
+  gap: 14px;
+}
+.ring-wrap{ position:relative; width:56px; height:56px; flex-shrink:0;}
+.ring-wrap svg{ transform: rotate(-90deg);}
+.ring-bg{ fill:none; stroke: var(--line); stroke-width:5;}
+.ring-fg{ fill:none; stroke: var(--accent-gold); stroke-width:5; stroke-linecap:round; transition: stroke-dashoffset 0.4s ease;}
+.ring-txt{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue'; font-size:15px; color: var(--text);
+}
+.day-info-text .dname{ font-size:17px; font-weight:900;}
+.day-info-text .dsub{ font-size:11.5px; color: var(--text-dim); margin-top:2px; line-height:1.5;}
+
+.info-btn{
+  margin-left:auto;
+  width:30px; height:30px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--bg-card);
+  color: var(--text-dim);
+  font-family:'Bebas Neue';
+  font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.warmup-note{
+  margin: 12px 18px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(93,163,119,0.10);
+  border: 1px solid rgba(95,163,119,0.35);
+  font-size: 12px;
+  color: #a9d3b8;
+  line-height:1.6;
+}
+.warmup-note b{color:#c7e8d1;}
+
+/* ---------- EXERCISE CARDS ---------- */
+.ex-list{ padding: 16px 18px 10px; display:flex; flex-direction:column; gap:12px;}
+
+.ex-card{
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow:hidden;
+}
+.ex-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 14px 14px 10px;
+}
+.tag-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+.ex-name{ font-size:15px; font-weight:700; flex:1;}
+.ex-order{ font-family:'Bebas Neue'; font-size:13px; color: var(--text-faint); width:20px;}
+
+.ex-meta{
+  display:flex;
+  gap:14px;
+  padding: 0 14px 12px;
+  flex-wrap:wrap;
+}
+.meta-item{ font-size:10.5px; color: var(--text-dim);}
+.meta-item .num{ color: var(--text); font-size:13px; margin-right:2px;}
+.meta-item .lbl{ letter-spacing:0.04em;}
+
+.set-table{ border-top: 1px solid var(--line);}
+.set-row{
+  display:grid;
+  grid-template-columns: 26px 1fr 1fr 34px;
+  gap:8px;
+  align-items:center;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.set-row:last-child{border-bottom:none;}
+.set-idx{ font-family:'Bebas Neue'; font-size:14px; color: var(--text-faint); text-align:center;}
+.set-input{
+  width:100%;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 7px 8px;
+  text-align:center;
+  font-family:'Bebas Neue';
+  letter-spacing:0.03em;
+}
+.set-input::placeholder{ color: var(--text-faint); font-family:'Noto Sans JP';}
+.set-check{
+  width:30px; height:30px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background: var(--bg-card-elevated);
+  color: transparent;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  font-size:15px;
+  justify-self:center;
+}
+.set-check.done{
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+
+.ex-foot{
+  display:flex;
+  padding: 10px 14px 14px;
+  gap:8px;
+}
+.rest-btn{
+  flex:1;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  color: var(--accent-gold);
+  border-radius: 9px;
+  padding: 9px 0;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.yt-btn{
+  flex: 0 0 auto;
+  width: 42px;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  color: #ff4d4d;
+  border-radius: 9px;
+  font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none;
+  cursor:pointer;
+}
+.carry-btn{
+  flex: 0 0 auto;
+  width: 42px;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  color: var(--back);
+  border-radius: 9px;
+  font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.prev-hint{
+  padding: 0 14px 8px;
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+.prev-hint b{ color: var(--text-dim); font-weight:700;}
+
+/* ---------- SUMMARY ---------- */
+.summary{
+  margin: 18px 18px 0;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.summary-title{ font-size:12px; letter-spacing:0.08em; color: var(--text-dim); font-weight:700; margin-bottom:12px;}
+.vol-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+.vol-label{ font-size:11px; width:56px; color: var(--text-dim); flex-shrink:0;}
+.vol-bar-bg{ flex:1; height:8px; background: var(--bg-card-elevated); border-radius:4px; overflow:hidden;}
+.vol-bar-fg{ height:100%; border-radius:4px; transition: width 0.4s ease;}
+.vol-val{ font-family:'Bebas Neue'; font-size:12px; color:var(--text-dim); width:44px; text-align:right; flex-shrink:0;}
+
+/* ---------- OVERLAY: REST TIMER ---------- */
+.overlay{
+  position:fixed;
+  top:0; bottom:0;
+  left:50%;
+  transform: translateX(-50%);
+  width:100%;
+  max-width: 460px;
+  background: rgba(10,10,11,0.92);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index: 100;
+  opacity:0; pointer-events:none;
+  transition: opacity 0.25s ease;
+}
+.overlay.show{ opacity:1; pointer-events:all;}
+.timer-ex-name{ font-size:13px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.04em;}
+.timer-num{ font-family:'Bebas Neue'; font-size:100px; color: var(--accent-gold); line-height:1;}
+.timer-sub{ font-size:12px; color:var(--text-faint); margin-top:10px;}
+.timer-skip{
+  margin-top: 30px;
+  padding: 12px 28px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 13px;
+  font-weight:700;
+}
+
+/* ---------- OVERLAY: INFO MODAL ---------- */
+.modal-overlay{
+  position:fixed;
+  top:0; bottom:0;
+  left:50%;
+  transform: translateX(-50%);
+  width:100%;
+  max-width: 460px;
+  background: rgba(10,10,11,0.85);
+  display:flex; align-items:flex-end; justify-content:center;
+  z-index: 100;
+  opacity:0; pointer-events:none;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.show{ opacity:1; pointer-events:all;}
+.modal-sheet{
+  width:100%;
+  max-width: 460px;
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  padding: 22px 20px 30px;
+  max-height: 78vh;
+  overflow-y:auto;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+.modal-overlay.show .modal-sheet{ transform: translateY(0);}
+.modal-title{ font-size:16px; font-weight:900; margin-bottom:14px;}
+.modal-item{ margin-bottom:12px; font-size:12.5px; line-height:1.7; color: var(--text-dim);}
+.modal-item b{ color: var(--text); display:block; margin-bottom:2px; font-size:13px;}
+.modal-close{
+  margin-top: 10px;
+  width:100%;
+  padding: 12px 0;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg-card-elevated);
+  color: var(--text);
+  font-size: 13px;
+  font-weight:700;
+}
+
+.footer-note{
+  text-align:center;
+  font-size:10.5px;
+  color: var(--text-faint);
+  padding: 24px 30px 0;
+  line-height:1.7;
+}
+
+/* ---------- CARDIO TAB ---------- */
+.day-tab.cardio-tab{
+  border-color: rgba(63,184,175,0.35);
+  background: linear-gradient(160deg, rgba(63,184,175,0.12), var(--bg-card));
+}
+.day-tab.cardio-tab .dow{ color: var(--cardio); font-size:15px;}
+.day-tab.cardio-tab.active{
+  border-color: var(--cardio);
+  background: linear-gradient(160deg, rgba(63,184,175,0.22), var(--bg-card));
+}
+
+.cardio-panel{ padding: 18px 18px 6px;}
+.cardio-title{ font-size:17px; font-weight:900;}
+.cardio-sub{ font-size:12px; color: var(--text-dim); margin-top:4px; line-height:1.6;}
+
+.cardio-type-row{ display:flex; gap:8px; margin-top:16px;}
+.cardio-type-chip{
+  flex:1;
+  text-align:center;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg-card);
+  font-size: 13px;
+  font-weight:700;
+  color: var(--text-dim);
+  cursor:pointer;
+}
+.cardio-type-chip.active{
+  background: var(--cardio);
+  border-color: var(--cardio);
+  color: #08201e;
+}
+
+.cardio-timer-box{
+  margin-top: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px 18px;
+  text-align:center;
+}
+.timer-phase{
+  font-family:'Bebas Neue';
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  color: var(--cardio);
+}
+.cardio-timer-num{
+  font-size: 56px;
+  color: var(--text);
+  line-height:1.1;
+  margin-top: 6px;
+}
+.timer-target{ font-size:11.5px; color: var(--text-dim); margin-top:6px;}
+
+.hiit-settings{
+  display:flex;
+  gap:10px;
+  margin-bottom: 14px;
+}
+.hiit-set-item{ flex:1;}
+.hiit-set-item label{
+  display:block;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  letter-spacing:0.05em;
+  margin-bottom: 4px;
+}
+.hiit-set-item input{
+  width:100%;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-family:'Bebas Neue';
+  font-size: 16px;
+  text-align:center;
+  padding: 8px 0;
+}
+.hiit-total{ font-size:11px; color: var(--text-dim); margin-bottom:12px;}
+
+.cardio-timer-controls{
+  display:flex;
+  gap:10px;
+  margin-top: 20px;
+}
+.ctl-btn{
+  flex:1;
+  padding: 12px 0;
+  border-radius: 10px;
+  border: none;
+  background: var(--cardio);
+  color: #08201e;
+  font-size: 13px;
+  font-weight: 900;
+  cursor:pointer;
+}
+.ctl-btn.secondary{
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+}
+.ctl-btn.running{ background: var(--accent-red); color:#fff;}
+
+.manual-log-btn{
+  width:100%;
+  margin-top: 14px;
+  padding: 12px 0;
+  border-radius: 10px;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 12.5px;
+  cursor:pointer;
+}
+.manual-form{
+  display:flex;
+  gap:8px;
+  margin-top: 10px;
+}
+.manual-form input{
+  flex:1;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-family:'Bebas Neue';
+  font-size: 16px;
+  text-align:center;
+  padding: 10px 0;
+}
+.manual-form button{
+  padding: 0 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--cardio);
+  color: #08201e;
+  font-weight:700;
+  font-size:12.5px;
+  cursor:pointer;
+}
+
+.cardio-summary{
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.cardio-summary-title{ font-size:11px; color: var(--text-dim); font-weight:700; letter-spacing:0.05em;}
+.cardio-summary-stats{
+  display:flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+.stat-block .stat-num{ font-family:'Bebas Neue'; font-size:26px; color: var(--cardio);}
+.stat-block .stat-lbl{ font-size:10px; color: var(--text-faint); margin-top:2px;}
+
+.cardio-history{ margin-top: 16px; display:flex; flex-direction:column; gap:8px;}
+.history-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.history-type-dot{ width:8px; height:8px; border-radius:50%; background: var(--cardio); flex-shrink:0;}
+.history-main{ flex:1;}
+.history-main .h-title{ font-size:12.5px; font-weight:700;}
+.history-main .h-sub{ font-size:10.5px; color: var(--text-faint); margin-top:1px;}
+.history-del{
+  width:24px; height:24px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  background: var(--bg-card-elevated);
+  color: var(--text-faint);
+  font-size:12px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.history-empty{ font-size:12px; color: var(--text-faint); text-align:center; padding: 14px 0;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="eyebrow">HOME TRAINING PROGRAM</div>
+  <div class="title">逆三角形メイキング <span class="num">∞</span>週</div>
+  <div class="week-row" id="weekRow"></div>
+</div>
+
+<div class="day-tabs" id="dayTabs"></div>
+
+<div class="day-info" id="dayInfoBox">
+  <div class="ring-wrap">
+    <svg width="56" height="56" viewBox="0 0 56 56">
+      <circle class="ring-bg" cx="28" cy="28" r="24"></circle>
+      <circle class="ring-fg" id="ringFg" cx="28" cy="28" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"></circle>
+    </svg>
+    <div class="ring-txt" id="ringTxt">0%</div>
+  </div>
+  <div class="day-info-text">
+    <div class="dname" id="dayName">-</div>
+    <div class="dsub" id="daySub">-</div>
+  </div>
+  <div class="info-btn" id="infoBtn">i</div>
+</div>
+
+<div class="warmup-note" id="warmupNote">
+  <b>ウォームアップ:</b> 肩甲骨回し10回×2方向 → 最初の種目を無負荷〜軽負荷で1セット(15回)してから本セット開始
+</div>
+
+<div class="ex-list" id="exList"></div>
+
+<div class="summary" id="summaryBox">
+  <div class="summary-title">今週の完了ボリューム（部位別）</div>
+  <div id="volList"></div>
+</div>
+
+<!-- CARDIO PANEL -->
+<div class="cardio-panel" id="cardioPanel" style="display:none;">
+  <div class="cardio-title">有酸素運動</div>
+  <div class="cardio-sub">HIITでも室内ウォーキングでも、やりたい時だけでOK。1回20分以上を目安に。</div>
+
+  <div class="cardio-type-row">
+    <div class="cardio-type-chip" id="chipWalk">ウォーキング</div>
+    <div class="cardio-type-chip" id="chipHiit">HIIT</div>
+  </div>
+
+  <!-- WALK TIMER -->
+  <div class="cardio-timer-box" id="walkBox">
+    <div class="timer-phase">室内ウォーキング</div>
+    <div class="cardio-timer-num num" id="walkTimerNum">00:00</div>
+    <div class="timer-target" id="walkTarget">目標 20:00 以上</div>
+    <div class="cardio-timer-controls">
+      <button class="ctl-btn" id="walkStartBtn">開始</button>
+      <button class="ctl-btn secondary" id="walkResetBtn">リセット</button>
+    </div>
+  </div>
+
+  <!-- HIIT TIMER -->
+  <div class="cardio-timer-box" id="hiitBox" style="display:none;">
+    <div class="hiit-settings">
+      <div class="hiit-set-item">
+        <label>WORK(秒)</label>
+        <input type="number" id="hiitWork" value="40">
+      </div>
+      <div class="hiit-set-item">
+        <label>REST(秒)</label>
+        <input type="number" id="hiitRest" value="20">
+      </div>
+      <div class="hiit-set-item">
+        <label>ラウンド数</label>
+        <input type="number" id="hiitRounds" value="20">
+      </div>
+    </div>
+    <div class="hiit-total" id="hiitTotal">合計予定時間: 20:00</div>
+    <div class="timer-phase" id="hiitPhaseLabel">READY</div>
+    <div class="cardio-timer-num num" id="hiitTimerNum">00:40</div>
+    <div class="timer-target" id="hiitRoundLabel">ラウンド 0 / 20</div>
+    <div class="cardio-timer-controls">
+      <button class="ctl-btn" id="hiitStartBtn">開始</button>
+      <button class="ctl-btn secondary" id="hiitResetBtn">リセット</button>
+    </div>
+  </div>
+
+  <button class="manual-log-btn" id="manualLogBtn">＋ タイマーを使わず分数だけ記録する</button>
+  <div class="manual-form" id="manualForm" style="display:none;">
+    <input type="number" id="manualMinutes" placeholder="分数（例: 25）">
+    <button id="manualSaveBtn">記録する</button>
+  </div>
+
+  <div class="cardio-summary">
+    <div class="cardio-summary-title">直近7日間の有酸素</div>
+    <div class="cardio-summary-stats" id="cardioStats"></div>
+  </div>
+
+  <div class="cardio-history" id="cardioHistory"></div>
+</div>
+
+<div class="footer-note" id="footerNote">重量 × 回数 × 完了セットで概算ボリュームを計算しています。<br>入力内容は端末に自動保存されます。</div>
+
+<!-- REST TIMER OVERLAY -->
+<div class="overlay" id="timerOverlay">
+  <div class="timer-ex-name" id="timerExName">REST</div>
+  <div class="timer-num num" id="timerNum">90</div>
+  <div class="timer-sub">タップでスキップ</div>
+  <div class="timer-skip" id="timerSkipBtn">スキップ</div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-sheet">
+    <div class="modal-title">用語ガイド</div>
+    <div class="modal-item"><b>RIR（Reps in Reserve）</b>あと何回できる余力を残してセットを終えるか。RIR 1 = あと1回できる強度で止める。RIR 0 = 完全に限界まで。</div>
+    <div class="modal-item"><b>テンポ（例: 3010）</b>4桁でおろす秒数・下位置で止める秒数・上げる秒数・上位置で止める秒数を表す。「3010」＝3秒でおろす→止めない→1秒で上げる→止めない。</div>
+    <div class="modal-item"><b>マイオレップ</b>通常セット後に15秒だけ休み、限界まで5回程度を追加で数セット行うテクニック。軽い重量の種目に効果的。</div>
+    <div class="modal-item"><b>ユニラテラル種目</b>片手・片脚で行う種目。左右別に効かせられるため、軽いダンベルでも負荷を高めやすい。</div>
+    <div class="modal-item"><b>週の進め方</b>1週目はフォーム習得（RIR2〜3）、2週目は回数の上限を伸ばす、3週目はマイオレップ本格導入、4週目はボリュームをやや落として回復優先。5週目以降も同じ4週サイクルを繰り返しながら、扱う重量・回数を少しずつ伸ばしていくイメージでOK。</div>
+    <div class="modal-item"><b>▶ ボタン</b>その種目のフォーム解説動画をYouTubeで検索して開く。</div>
+    <div class="modal-item"><b>↺ ボタン</b>先週入力した重量を今週の空欄に引き継ぐ（2週目以降に表示）。そこから重量・回数を伸ばせているか確認する。</div>
+    <div class="modal-item"><b>週の追加（+）</b>週チップの一番右の「+」で新しい週を追加できる。4週で終わらず、そのままずっと記録を続けられる。</div>
+    <div class="modal-close" id="modalCloseBtn">閉じる</div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+const MUSCLE = {
+  chest:   { label:'胸',  color:'var(--chest)' },
+  shoulder:{ label:'肩',  color:'var(--shoulder)' },
+  back:    { label:'背中', color:'var(--back)' },
+  arms:    { label:'腕',  color:'var(--arms)' },
+  legs:    { label:'脚/尻', color:'var(--legs)' },
+};
+
+const PROGRAM = {
+  mon: {
+    dow:'月', label:'Push A', part:'胸・肩・三頭',
+    exercises: [
+      { id:'mon1', name:'インクラインDBプレス', muscle:'chest', sets:4, reps:'8-12', rir:'2', tempo:'3010', rest:90, yt:'ダンベル インクラインプレス フォーム' },
+      { id:'mon2', name:'シーテッドDBショルダープレス', muscle:'shoulder', sets:4, reps:'10-15', rir:'2', tempo:'2011', rest:90, yt:'ダンベル ショルダープレス フォーム' },
+      { id:'mon3', name:'フラットDBフライ', muscle:'chest', sets:3, reps:'12-15', rir:'1-2', tempo:'3110', rest:60, yt:'ダンベルフライ フォーム' },
+      { id:'mon4', name:'サイドレイズ（最終セットのみマイオレップ）', muscle:'shoulder', sets:4, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'サイドレイズ フォーム' },
+      { id:'mon5', name:'DBオーバーヘッドトライセップスエクステンション', muscle:'arms', sets:3, reps:'12-15', rir:'1', tempo:'3010', rest:60, yt:'ダンベル オーバーヘッドトライセプスエクステンション' },
+      { id:'mon6', name:'ベンチディップス（仕上げ）', muscle:'arms', sets:2, reps:'限界', rir:'0', tempo:'通常', rest:60, yt:'ベンチディップス フォーム' },
+    ]
+  },
+  tue: {
+    dow:'火', label:'Lower + Glute', part:'脚・お尻',
+    exercises: [
+      { id:'tue1', name:'ブルガリアンスクワット', muscle:'legs', sets:3, reps:'10-12/脚', rir:'2', tempo:'2010', rest:90, yt:'ブルガリアンスクワット フォーム' },
+      { id:'tue2', name:'ルーマニアンデッドリフト', muscle:'legs', sets:4, reps:'10-15', rir:'1-2', tempo:'3010', rest:90, yt:'ダンベル ルーマニアンデッドリフト フォーム' },
+      { id:'tue3', name:'シングルレッグヒップスラスト', muscle:'legs', sets:4, reps:'12-15/脚', rir:'1', tempo:'2011', rest:60, yt:'片脚ヒップスラスト フォーム' },
+      { id:'tue4', name:'ゴブレットスクワット', muscle:'legs', sets:3, reps:'15-20', rir:'1', tempo:'通常', rest:60, yt:'ゴブレットスクワット フォーム' },
+      { id:'tue5', name:'片脚スタンディングカーフレイズ', muscle:'legs', sets:3, reps:'15-20/脚', rir:'1', tempo:'通常', rest:45, yt:'片脚カーフレイズ フォーム' },
+    ]
+  },
+  thu: {
+    dow:'木', label:'Pull B', part:'背中・僧帽筋・二頭',
+    exercises: [
+      { id:'thu1', name:'ワンハンドDBロー', muscle:'back', sets:4, reps:'10-15', rir:'1-2', tempo:'2011', rest:90, yt:'ダンベル ワンハンドロー フォーム' },
+      { id:'thu2', name:'チェストサポーテッドロー', muscle:'back', sets:3, reps:'12-15', rir:'1-2', tempo:'2011', rest:75, yt:'チェストサポーテッドロー ダンベル フォーム' },
+      { id:'thu3', name:'DBプルオーバー', muscle:'back', sets:3, reps:'12-15', rir:'1-2', tempo:'3010', rest:60, yt:'ダンベルプルオーバー フォーム' },
+      { id:'thu4', name:'リアデルトフライ', muscle:'shoulder', sets:4, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'リアデルトフライ ダンベル フォーム' },
+      { id:'thu5', name:'DBシュラッグ', muscle:'back', sets:3, reps:'12-15', rir:'1', tempo:'通常', rest:60, yt:'ダンベルシュラッグ フォーム' },
+      { id:'thu6', name:'インクラインDBカール', muscle:'arms', sets:3, reps:'10-12', rir:'1', tempo:'3010', rest:60, yt:'インクラインダンベルカール フォーム' },
+      { id:'thu7', name:'ハンマーカール', muscle:'arms', sets:2, reps:'12-15', rir:'1', tempo:'通常', rest:45, yt:'ハンマーカール フォーム' },
+    ]
+  },
+  sat: {
+    dow:'土', label:'肩特化', part:'肩・補助',
+    exercises: [
+      { id:'sat1', name:'アーノルドプレス', muscle:'shoulder', sets:3, reps:'10-12', rir:'1-2', tempo:'2011', rest:90, yt:'アーノルドプレス フォーム' },
+      { id:'sat2', name:'サイドレイズ', muscle:'shoulder', sets:5, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'サイドレイズ フォーム' },
+      { id:'sat3', name:'フロントレイズ', muscle:'shoulder', sets:2, reps:'15', rir:'1', tempo:'通常', rest:45, yt:'フロントレイズ ダンベル フォーム' },
+      { id:'sat4', name:'インクラインDBフライ', muscle:'chest', sets:3, reps:'12-15', rir:'1', tempo:'通常', rest:60, yt:'インクラインダンベルフライ フォーム' },
+      { id:'sat5', name:'ダイヤモンドプッシュアップ', muscle:'arms', sets:3, reps:'限界', rir:'0', tempo:'通常', rest:60, yt:'ダイヤモンドプッシュアップ フォーム' },
+      { id:'sat6', name:'片脚ヒップスラスト', muscle:'legs', sets:3, reps:'15-20/脚', rir:'1', tempo:'通常', rest:60, yt:'片脚ヒップスラスト フォーム' },
+      { id:'sat7', name:'カーフレイズ', muscle:'legs', sets:2, reps:'15-20', rir:'1', tempo:'通常', rest:45, yt:'ダンベル カーフレイズ フォーム' },
+    ]
+  }
+};
+
+const DAY_ORDER = ['mon','tue','thu','sat'];
+
+let state = {
+  week: 1,
+  day: 'mon',
+  maxWeek: 4,
+  log: {}, // { exId: [ {w,r,done}, ... ] }
+  prevLog: {}, // previous week's log, for "carry over weight" feature
+  cardioType: 'walk', // 'walk' | 'hiit'
+  cardioSessions: []
+};
+
+let timerInterval = null;
+
+// ---------- STORAGE ADAPTER ----------
+// Inside Claude, window.storage is available. Once this file is saved and
+// opened on its own (e.g. added to the iPhone home screen), window.storage
+// does not exist, so we fall back to the browser's own localStorage —
+// which works reliably for a page running on its own.
+const storageAPI = (function(){
+  if(window.storage && typeof window.storage.get === 'function' && typeof window.storage.set === 'function'){
+    return window.storage;
+  }
+  return {
+    async get(key){
+      const v = localStorage.getItem(key);
+      if(v === null) throw new Error('not found: ' + key);
+      return { key, value: v };
+    },
+    async set(key, value){
+      localStorage.setItem(key, value);
+      return { key, value };
+    }
+  };
+})();
+
+function storageKey(week, day){ return 'log:w' + week + ':' + day; }
+
+async function loadDay(week, day){
+  const key = storageKey(week, day);
+  try{
+    const res = await storageAPI.get(key);
+    if(res && res.value){ return JSON.parse(res.value); }
+  }catch(e){ /* not found yet */ }
+  // build empty structure
+  const empty = {};
+  PROGRAM[day].exercises.forEach(ex=>{
+    empty[ex.id] = Array.from({length: ex.sets}, ()=>({w:'', r:'', done:false}));
+  });
+  return empty;
+}
+
+async function loadMaxWeek(){
+  try{
+    const res = await storageAPI.get('meta:maxWeek');
+    if(res && res.value){ return parseInt(res.value,10) || 4; }
+  }catch(e){ /* not set yet */ }
+  return 4;
+}
+async function saveMaxWeek(w){
+  try{ await storageAPI.set('meta:maxWeek', String(w)); }
+  catch(e){ console.error('save maxWeek failed', e); }
+}
+
+async function loadCardioSessions(){
+  try{
+    const res = await storageAPI.get('cardio:sessions');
+    if(res && res.value){ return JSON.parse(res.value); }
+  }catch(e){ /* not set yet */ }
+  return [];
+}
+async function saveCardioSessions(list){
+  try{ await storageAPI.set('cardio:sessions', JSON.stringify(list)); }
+  catch(e){ console.error('save cardio sessions failed', e); }
+}
+async function addCardioSession(session){
+  state.cardioSessions.unshift(session);
+  await saveCardioSessions(state.cardioSessions);
+}
+async function deleteCardioSession(id){
+  state.cardioSessions = state.cardioSessions.filter(s=>s.id !== id);
+  await saveCardioSessions(state.cardioSessions);
+}
+
+let saveTimers = {};
+function saveDay(week, day, data){
+  const key = storageKey(week, day);
+  clearTimeout(saveTimers[key]);
+  saveTimers[key] = setTimeout(async ()=>{
+    try{ await storageAPI.set(key, JSON.stringify(data)); }
+    catch(e){ console.error('save failed', e); }
+  }, 350);
+}
+
+// ---------- RENDER: HEADER ----------
+function renderWeekRow(){
+  const row = document.getElementById('weekRow');
+  row.innerHTML = '';
+  for(let w=1; w<=state.maxWeek; w++){
+    const chip = document.createElement('div');
+    chip.className = 'week-chip' + (state.week===w ? ' active' : '');
+    chip.innerHTML = '<span class="num">'+w+'</span><span class="wk-label">WEEK</span>';
+    chip.onclick = ()=>{ state.week = w; refresh(); };
+    row.appendChild(chip);
+  }
+  const addChip = document.createElement('div');
+  addChip.className = 'week-chip add';
+  addChip.textContent = '+';
+  addChip.title = '週を追加してプログラムを継続';
+  addChip.onclick = async ()=>{
+    state.maxWeek += 1;
+    await saveMaxWeek(state.maxWeek);
+    state.week = state.maxWeek;
+    refresh();
+  };
+  row.appendChild(addChip);
+
+  // keep the active chip in view
+  requestAnimationFrame(()=>{
+    const active = row.querySelector('.week-chip.active');
+    if(active) active.scrollIntoView({inline:'center', block:'nearest'});
+  });
+}
+
+function renderDayTabs(){
+  const wrap = document.getElementById('dayTabs');
+  wrap.innerHTML = '';
+  DAY_ORDER.forEach(d=>{
+    const p = PROGRAM[d];
+    const tab = document.createElement('div');
+    tab.className = 'day-tab' + (state.day===d ? ' active' : '');
+    tab.innerHTML = '<div class="dow">'+p.dow+'</div><div class="part">'+p.label+'</div>';
+    tab.onclick = ()=>{ state.day = d; refresh(); };
+    wrap.appendChild(tab);
+  });
+  const cardioTab = document.createElement('div');
+  cardioTab.className = 'day-tab cardio-tab' + (state.day==='cardio' ? ' active' : '');
+  cardioTab.innerHTML = '<div class="dow">🏃</div><div class="part">有酸素</div>';
+  cardioTab.onclick = ()=>{ state.day = 'cardio'; refresh(); };
+  wrap.appendChild(cardioTab);
+}
+
+function computeProgress(){
+  const p = PROGRAM[state.day];
+  let total=0, done=0;
+  p.exercises.forEach(ex=>{
+    const rows = state.log[ex.id] || [];
+    total += ex.sets;
+    rows.forEach(r=>{ if(r.done) done++; });
+  });
+  return total ? Math.round(done/total*100) : 0;
+}
+
+function renderDayInfo(){
+  const p = PROGRAM[state.day];
+  document.getElementById('dayName').textContent = p.label + '（' + p.part + '）';
+  const totalSets = p.exercises.reduce((s,e)=>s+e.sets,0);
+  document.getElementById('daySub').textContent = p.exercises.length + '種目 ・ 計' + totalSets + 'セット ・ 60分以内';
+
+  const pct = computeProgress();
+  const circumference = 150.8;
+  const offset = circumference - (circumference*pct/100);
+  document.getElementById('ringFg').style.strokeDashoffset = offset;
+  document.getElementById('ringTxt').textContent = pct+'%';
+}
+
+// ---------- RENDER: EXERCISES ----------
+function renderExercises(){
+  const wrap = document.getElementById('exList');
+  wrap.innerHTML = '';
+  const p = PROGRAM[state.day];
+
+  p.exercises.forEach((ex, idx)=>{
+    const m = MUSCLE[ex.muscle];
+    const rows = state.log[ex.id] || [];
+
+    const card = document.createElement('div');
+    card.className = 'ex-card';
+
+    let setsHtml = '';
+    for(let i=0;i<ex.sets;i++){
+      const rowData = rows[i] || {w:'',r:'',done:false};
+      setsHtml += `
+        <div class="set-row">
+          <div class="set-idx">${i+1}</div>
+          <input class="set-input" type="number" inputmode="decimal" placeholder="kg" value="${rowData.w}" data-ex="${ex.id}" data-set="${i}" data-field="w">
+          <input class="set-input" type="number" inputmode="numeric" placeholder="${ex.reps}" value="${rowData.r}" data-ex="${ex.id}" data-set="${i}" data-field="r">
+          <div class="set-check ${rowData.done?'done':''}" data-ex="${ex.id}" data-set="${i}">✓</div>
+        </div>`;
+    }
+
+    const prevRows = state.prevLog ? (state.prevLog[ex.id] || []) : [];
+    const prevWeights = prevRows.filter(r=>r.done && r.w).map(r=>parseFloat(r.w));
+    const prevHint = prevWeights.length
+      ? `<div class="prev-hint">先週: <b>${Math.max(...prevWeights)}kg</b> まで確認 — 今週はここから伸ばす</div>`
+      : '';
+
+    const ytUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.yt || ex.name + ' フォーム');
+
+    card.innerHTML = `
+      <div class="ex-head">
+        <div class="ex-order">${String(idx+1).padStart(2,'0')}</div>
+        <div class="tag-dot" style="background:${m.color}"></div>
+        <div class="ex-name">${ex.name}</div>
+      </div>
+      <div class="ex-meta">
+        <div class="meta-item"><span class="num">${ex.sets}</span><span class="lbl">セット</span></div>
+        <div class="meta-item"><span class="num">${ex.reps}</span><span class="lbl">回</span></div>
+        <div class="meta-item"><span class="num">${ex.rir}</span><span class="lbl">RIR</span></div>
+        <div class="meta-item"><span class="num">${ex.tempo}</span><span class="lbl">テンポ</span></div>
+        <div class="meta-item"><span class="num">${ex.rest}s</span><span class="lbl">レスト</span></div>
+      </div>
+      ${prevHint}
+      <div class="set-table">${setsHtml}</div>
+      <div class="ex-foot">
+        <a class="yt-btn" href="${ytUrl}">▶</a>
+        <button class="rest-btn" data-rest="${ex.rest}" data-name="${ex.name}">⏱ レスト開始（${ex.rest}秒）</button>
+        ${state.prevLog ? `<button class="carry-btn" data-carry="${ex.id}" title="先週の重量を引き継ぐ">↺</button>` : ''}
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+
+  // bind inputs
+  wrap.querySelectorAll('.set-input').forEach(inp=>{
+    inp.addEventListener('input', onSetInputChange);
+  });
+  wrap.querySelectorAll('.set-check').forEach(btn=>{
+    btn.addEventListener('click', onSetCheckToggle);
+  });
+  wrap.querySelectorAll('.rest-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> startRestTimer(parseInt(btn.dataset.rest,10), btn.dataset.name));
+  });
+  wrap.querySelectorAll('.carry-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> carryOverWeight(btn.dataset.carry));
+  });
+}
+
+function carryOverWeight(exId){
+  if(!state.prevLog) return;
+  const prevRows = state.prevLog[exId] || [];
+  if(!state.log[exId]) state.log[exId] = [];
+  prevRows.forEach((prevRow, i)=>{
+    if(!prevRow.w) return;
+    if(!state.log[exId][i]) state.log[exId][i] = {w:'',r:'',done:false};
+    if(!state.log[exId][i].w){ state.log[exId][i].w = prevRow.w; }
+  });
+  saveDay(state.week, state.day, state.log);
+  renderExercises();
+  renderVolumeSummary();
+}
+
+function onSetInputChange(e){
+  const exId = e.target.dataset.ex;
+  const setIdx = parseInt(e.target.dataset.set,10);
+  const field = e.target.dataset.field;
+  if(!state.log[exId]) state.log[exId] = [];
+  if(!state.log[exId][setIdx]) state.log[exId][setIdx] = {w:'',r:'',done:false};
+  state.log[exId][setIdx][field] = e.target.value;
+  saveDay(state.week, state.day, state.log);
+  renderVolumeSummary();
+}
+
+function onSetCheckToggle(e){
+  const exId = e.currentTarget.dataset.ex;
+  const setIdx = parseInt(e.currentTarget.dataset.set,10);
+  if(!state.log[exId]) state.log[exId] = [];
+  if(!state.log[exId][setIdx]) state.log[exId][setIdx] = {w:'',r:'',done:false};
+  state.log[exId][setIdx].done = !state.log[exId][setIdx].done;
+  e.currentTarget.classList.toggle('done');
+  saveDay(state.week, state.day, state.log);
+  renderDayInfo();
+  renderVolumeSummary();
+}
+
+// ---------- VOLUME SUMMARY ----------
+function renderVolumeSummary(){
+  const p = PROGRAM[state.day];
+  const totals = {};
+  Object.keys(MUSCLE).forEach(k=> totals[k]=0);
+
+  p.exercises.forEach(ex=>{
+    const rows = state.log[ex.id] || [];
+    rows.forEach(r=>{
+      if(r.done){
+        const w = parseFloat(r.w)||0;
+        const reps = parseFloat(r.r)||0;
+        totals[ex.muscle] += (w * reps) || reps; // fall back to reps if no weight (bodyweight moves)
+      }
+    });
+  });
+
+  const max = Math.max(1, ...Object.values(totals));
+  const list = document.getElementById('volList');
+  list.innerHTML = '';
+  Object.keys(MUSCLE).forEach(k=>{
+    const m = MUSCLE[k];
+    const val = totals[k];
+    const pct = Math.round(val/max*100);
+    const row = document.createElement('div');
+    row.className = 'vol-row';
+    row.innerHTML = `
+      <div class="vol-label">${m.label}</div>
+      <div class="vol-bar-bg"><div class="vol-bar-fg" style="width:${pct}%; background:${m.color}"></div></div>
+      <div class="vol-val num">${Math.round(val)}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ---------- REST TIMER ----------
+function startRestTimer(seconds, name){
+  clearInterval(timerInterval);
+  const overlay = document.getElementById('timerOverlay');
+  const numEl = document.getElementById('timerNum');
+  document.getElementById('timerExName').textContent = name.toUpperCase();
+  let remaining = seconds;
+  numEl.textContent = remaining;
+  overlay.classList.add('show');
+
+  timerInterval = setInterval(()=>{
+    remaining--;
+    if(remaining <= 0){
+      clearInterval(timerInterval);
+      numEl.textContent = '0';
+      if(navigator.vibrate) navigator.vibrate([200,100,200]);
+      setTimeout(()=> overlay.classList.remove('show'), 500);
+      return;
+    }
+    numEl.textContent = remaining;
+  }, 1000);
+}
+
+function closeTimer(){
+  clearInterval(timerInterval);
+  document.getElementById('timerOverlay').classList.remove('show');
+}
+
+document.getElementById('timerOverlay').addEventListener('click', closeTimer);
+document.getElementById('timerSkipBtn').addEventListener('click', (e)=>{ e.stopPropagation(); closeTimer(); });
+
+// ---------- INFO MODAL ----------
+document.getElementById('infoBtn').addEventListener('click', ()=>{
+  document.getElementById('infoModal').classList.add('show');
+});
+document.getElementById('modalCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('infoModal').classList.remove('show');
+});
+document.getElementById('infoModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'infoModal') document.getElementById('infoModal').classList.remove('show');
+});
+
+// ---------- CARDIO ----------
+let walkInterval = null;
+let walkElapsed = 0; // seconds
+let walkRunning = false;
+
+let hiitInterval = null;
+let hiitState = null; // {phase, remaining, round, totalRounds, workSec, restSec}
+
+function fmtMMSS(totalSec){
+  const m = Math.floor(totalSec/60);
+  const s = totalSec % 60;
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function renderCardioPanel(){
+  document.getElementById('chipWalk').className = 'cardio-type-chip' + (state.cardioType==='walk' ? ' active' : '');
+  document.getElementById('chipHiit').className = 'cardio-type-chip' + (state.cardioType==='hiit' ? ' active' : '');
+  document.getElementById('walkBox').style.display = state.cardioType==='walk' ? 'block' : 'none';
+  document.getElementById('hiitBox').style.display = state.cardioType==='hiit' ? 'block' : 'none';
+  renderCardioStats();
+  renderCardioHistory();
+}
+
+document.getElementById('chipWalk').addEventListener('click', ()=>{ state.cardioType='walk'; renderCardioPanel(); });
+document.getElementById('chipHiit').addEventListener('click', ()=>{ state.cardioType='hiit'; renderCardioPanel(); });
+
+// ----- WALK TIMER (count up) -----
+function updateWalkDisplay(){
+  document.getElementById('walkTimerNum').textContent = fmtMMSS(walkElapsed);
+  const target = document.getElementById('walkTarget');
+  if(walkElapsed >= 1200){
+    target.textContent = '目標の20分達成 🎉 続けても、ここで終えてもOK';
+    target.style.color = 'var(--ok)';
+  } else {
+    target.textContent = '目標 20:00 以上（あと ' + fmtMMSS(1200-walkElapsed) + '）';
+    target.style.color = '';
+  }
+}
+
+document.getElementById('walkStartBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('walkStartBtn');
+  if(!walkRunning){
+    walkRunning = true;
+    btn.textContent = '一時停止';
+    btn.classList.add('running');
+    walkInterval = setInterval(()=>{ walkElapsed++; updateWalkDisplay(); }, 1000);
+  } else {
+    walkRunning = false;
+    btn.textContent = '再開';
+    btn.classList.remove('running');
+    clearInterval(walkInterval);
+  }
+});
+
+document.getElementById('walkResetBtn').addEventListener('click', async ()=>{
+  clearInterval(walkInterval);
+  walkRunning = false;
+  const btn = document.getElementById('walkStartBtn');
+  btn.textContent = '開始';
+  btn.classList.remove('running');
+  if(walkElapsed >= 30){
+    const minutes = Math.max(1, Math.round(walkElapsed/60));
+    await addCardioSession({ id:'c'+Date.now(), date: todayStr(), type:'walk', minutes, detail:'室内ウォーキング' });
+    renderCardioStats();
+    renderCardioHistory();
+  }
+  walkElapsed = 0;
+  updateWalkDisplay();
+});
+
+// ----- HIIT TIMER (work/rest intervals) -----
+function updateHiitSettingsDisplay(){
+  const work = parseInt(document.getElementById('hiitWork').value,10) || 0;
+  const rest = parseInt(document.getElementById('hiitRest').value,10) || 0;
+  const rounds = parseInt(document.getElementById('hiitRounds').value,10) || 0;
+  document.getElementById('hiitTotal').textContent = '合計予定時間: ' + fmtMMSS((work+rest)*rounds);
+  document.getElementById('hiitPhaseLabel').textContent = 'READY';
+  document.getElementById('hiitPhaseLabel').style.color = '';
+  document.getElementById('hiitRoundLabel').textContent = 'ラウンド 0 / ' + rounds;
+  document.getElementById('hiitTimerNum').textContent = fmtMMSS(work);
+}
+['hiitWork','hiitRest','hiitRounds'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ if(!hiitState) updateHiitSettingsDisplay(); });
+});
+
+function renderHiitTick(){
+  document.getElementById('hiitPhaseLabel').textContent = hiitState.phase === 'work' ? 'WORK' : 'REST';
+  document.getElementById('hiitPhaseLabel').style.color = hiitState.phase === 'work' ? 'var(--accent-red)' : 'var(--cardio)';
+  document.getElementById('hiitTimerNum').textContent = fmtMMSS(hiitState.remaining+1);
+  document.getElementById('hiitRoundLabel').textContent = 'ラウンド ' + Math.min(hiitState.round+1,hiitState.totalRounds) + ' / ' + hiitState.totalRounds;
+}
+
+function tickHiit(){
+  hiitState.remaining--;
+  if(hiitState.remaining < 0){
+    if(hiitState.phase === 'work'){
+      hiitState.phase = 'rest';
+      hiitState.remaining = hiitState.restSec - 1;
+    } else {
+      hiitState.round++;
+      if(hiitState.round >= hiitState.totalRounds){ finishHiit(true); return; }
+      hiitState.phase = 'work';
+      hiitState.remaining = hiitState.workSec - 1;
+    }
+    if(navigator.vibrate) navigator.vibrate(200);
+  }
+  renderHiitTick();
+}
+
+async function finishHiit(completed){
+  const wasRunning = !!hiitState;
+  clearInterval(hiitInterval);
+  hiitInterval = null;
+  const btn = document.getElementById('hiitStartBtn');
+  btn.textContent = '開始';
+  btn.classList.remove('running');
+  document.querySelectorAll('.hiit-settings input').forEach(i=> i.disabled = false);
+
+  if(wasRunning && completed){
+    if(navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
+    const totalMin = Math.max(1, Math.round(((hiitState.workSec+hiitState.restSec)*hiitState.totalRounds)/60));
+    await addCardioSession({
+      id:'c'+Date.now(), date: todayStr(), type:'hiit', minutes: totalMin,
+      detail: hiitState.workSec+'s/'+hiitState.restSec+'s × '+hiitState.totalRounds+'ラウンド'
+    });
+    renderCardioStats();
+    renderCardioHistory();
+  }
+  hiitState = null;
+  updateHiitSettingsDisplay();
+}
+
+document.getElementById('hiitStartBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('hiitStartBtn');
+  if(!hiitState){
+    const work = parseInt(document.getElementById('hiitWork').value,10) || 30;
+    const rest = parseInt(document.getElementById('hiitRest').value,10) || 15;
+    const rounds = parseInt(document.getElementById('hiitRounds').value,10) || 10;
+    hiitState = { phase:'work', remaining: work-1, round:0, totalRounds: rounds, workSec: work, restSec: rest };
+    document.querySelectorAll('.hiit-settings input').forEach(i=> i.disabled = true);
+    btn.textContent = '停止';
+    btn.classList.add('running');
+    renderHiitTick();
+    hiitInterval = setInterval(tickHiit, 1000);
+  } else {
+    finishHiit(false);
+  }
+});
+
+document.getElementById('hiitResetBtn').addEventListener('click', ()=>{ finishHiit(false); });
+
+// ----- MANUAL LOG (no timer) -----
+document.getElementById('manualLogBtn').addEventListener('click', ()=>{
+  const form = document.getElementById('manualForm');
+  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+});
+document.getElementById('manualSaveBtn').addEventListener('click', async ()=>{
+  const minutes = parseInt(document.getElementById('manualMinutes').value,10);
+  if(!minutes || minutes <= 0) return;
+  await addCardioSession({
+    id:'c'+Date.now(), date: todayStr(), type: state.cardioType, minutes,
+    detail: state.cardioType === 'walk' ? '室内ウォーキング（手動記録）' : 'HIIT（手動記録）'
+  });
+  document.getElementById('manualMinutes').value = '';
+  document.getElementById('manualForm').style.display = 'none';
+  renderCardioStats();
+  renderCardioHistory();
+});
+
+// ----- STATS + HISTORY -----
+function renderCardioStats(){
+  const cutoff = Date.now() - 7*24*60*60*1000;
+  const recent = state.cardioSessions.filter(s=> new Date(s.date).getTime() >= cutoff);
+  const totalMin = recent.reduce((sum,s)=>sum+s.minutes,0);
+  document.getElementById('cardioStats').innerHTML = `
+    <div class="stat-block"><div class="stat-num num">${recent.length}</div><div class="stat-lbl">回</div></div>
+    <div class="stat-block"><div class="stat-num num">${totalMin}</div><div class="stat-lbl">合計分</div></div>
+  `;
+}
+
+function renderCardioHistory(){
+  const wrap = document.getElementById('cardioHistory');
+  if(!state.cardioSessions.length){
+    wrap.innerHTML = '<div class="history-empty">まだ記録がありません。やった日だけ記録すればOK。</div>';
+    return;
+  }
+  wrap.innerHTML = '';
+  state.cardioSessions.slice(0,20).forEach(s=>{
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+      <div class="history-type-dot"></div>
+      <div class="history-main">
+        <div class="h-title">${s.type==='walk' ? 'ウォーキング' : 'HIIT'} ・ ${s.minutes}分</div>
+        <div class="h-sub">${s.date} ・ ${s.detail}</div>
+      </div>
+      <div class="history-del" data-id="${s.id}">×</div>
+    `;
+    wrap.appendChild(item);
+  });
+  wrap.querySelectorAll('.history-del').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      await deleteCardioSession(btn.dataset.id);
+      renderCardioStats();
+      renderCardioHistory();
+    });
+  });
+}
+
+updateWalkDisplay();
+updateHiitSettingsDisplay();
+
+// ---------- MAIN REFRESH ----------
+function setTrainingViewVisible(visible){
+  document.getElementById('weekRow').style.display = visible ? 'flex' : 'none';
+  document.getElementById('dayInfoBox').style.display = visible ? 'flex' : 'none';
+  document.getElementById('warmupNote').style.display = visible ? 'block' : 'none';
+  document.getElementById('exList').style.display = visible ? 'flex' : 'none';
+  document.getElementById('summaryBox').style.display = visible ? 'block' : 'none';
+  document.getElementById('cardioPanel').style.display = visible ? 'none' : 'block';
+  document.getElementById('footerNote').style.display = visible ? 'block' : 'none';
+}
+
+async function refresh(){
+  state.maxWeek = await loadMaxWeek();
+  if(state.week > state.maxWeek) state.week = state.maxWeek;
+  renderWeekRow();
+  renderDayTabs();
+
+  if(state.day === 'cardio'){
+    setTrainingViewVisible(false);
+    state.cardioSessions = await loadCardioSessions();
+    renderCardioPanel();
+  } else {
+    setTrainingViewVisible(true);
+    state.log = await loadDay(state.week, state.day);
+    state.prevLog = state.week > 1 ? await loadDay(state.week - 1, state.day) : null;
+    renderDayInfo();
+    renderExercises();
+    renderVolumeSummary();
+  }
+}
+
+refresh();
+
+})();
+</script>
+</body>
+</html>
