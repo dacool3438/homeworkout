@@ -27,6 +27,7 @@
   --legs: #5fa377;
   --ok: #5fa377;
   --cardio: #3fb8af;
+  --calendar: #5b8def;
 }
 
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent;}
@@ -40,8 +41,6 @@ body{
   position: relative;
 }
 
-/* On wide screens, constrain to a phone-like column and give the page
-   itself a neutral surrounding backdrop so it doesn't stretch edge to edge. */
 @media (min-width: 640px){
   html{ background: #0a0a0b; }
   body{
@@ -57,7 +56,6 @@ body{
 
 .num{font-family:'Bebas Neue', 'Noto Sans JP', sans-serif; letter-spacing: 0.02em;}
 
-/* ---------- HEADER ---------- */
 .app-header{
   padding: 22px 18px 14px;
   border-bottom: 1px solid var(--line);
@@ -130,7 +128,34 @@ body{
 }
 .week-chip.add .wk-label{display:none;}
 
-/* ---------- DAY TABS ---------- */
+.protein-bar{
+  margin: 14px 18px 0;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.protein-icon{ font-size:20px; flex-shrink:0;}
+.protein-info{ flex:1;}
+.protein-label{ font-size:10.5px; color: var(--text-dim);}
+.protein-count{ font-family:'Bebas Neue'; font-size:16px; margin-top:2px; letter-spacing:0.03em;}
+.protein-btn{
+  width:32px; height:32px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background: var(--bg-card-elevated);
+  color: var(--text);
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  flex-shrink:0;
+}
+.protein-btn.plus{ color: var(--ok); border-color: rgba(95,163,119,0.4);}
+.protein-btn.minus{ color: var(--text-faint);}
+
 .day-tabs{
   display:flex;
   gap:6px;
@@ -164,7 +189,6 @@ body{
 }
 .day-tab.active .dow{color: var(--accent-gold);}
 
-/* ---------- DAY INFO / PROGRESS RING ---------- */
 .day-info{
   padding: 18px 18px 4px;
   display:flex;
@@ -209,7 +233,6 @@ body{
 }
 .warmup-note b{color:#c7e8d1;}
 
-/* ---------- EXERCISE CARDS ---------- */
 .ex-list{ padding: 16px 18px 10px; display:flex; flex-direction:column; gap:12px;}
 
 .ex-card{
@@ -325,7 +348,6 @@ body{
 }
 .prev-hint b{ color: var(--text-dim); font-weight:700;}
 
-/* ---------- SUMMARY ---------- */
 .summary{
   margin: 18px 18px 0;
   padding: 16px;
@@ -340,7 +362,6 @@ body{
 .vol-bar-fg{ height:100%; border-radius:4px; transition: width 0.4s ease;}
 .vol-val{ font-family:'Bebas Neue'; font-size:12px; color:var(--text-dim); width:44px; text-align:right; flex-shrink:0;}
 
-/* ---------- OVERLAY: REST TIMER ---------- */
 .overlay{
   position:fixed;
   top:0; bottom:0;
@@ -369,7 +390,6 @@ body{
   font-weight:700;
 }
 
-/* ---------- OVERLAY: INFO MODAL ---------- */
 .modal-overlay{
   position:fixed;
   top:0; bottom:0;
@@ -419,7 +439,6 @@ body{
   line-height:1.7;
 }
 
-/* ---------- CARDIO TAB ---------- */
 .day-tab.cardio-tab{
   border-color: rgba(63,184,175,0.35);
   background: linear-gradient(160deg, rgba(63,184,175,0.12), var(--bg-card));
@@ -604,6 +623,71 @@ body{
   flex-shrink:0;
 }
 .history-empty{ font-size:12px; color: var(--text-faint); text-align:center; padding: 14px 0;}
+
+.day-tab.calendar-tab{
+  border-color: rgba(91,141,239,0.35);
+  background: linear-gradient(160deg, rgba(91,141,239,0.12), var(--bg-card));
+}
+.day-tab.calendar-tab .dow{ color: var(--calendar); font-size:15px;}
+.day-tab.calendar-tab.active{
+  border-color: var(--calendar);
+  background: linear-gradient(160deg, rgba(91,141,239,0.22), var(--bg-card));
+}
+
+.calendar-panel{ padding: 18px 18px 6px;}
+.cal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.cal-nav-btn{
+  width:34px; height:34px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.cal-month-label{ font-family:'Bebas Neue'; font-size:19px; letter-spacing:0.03em;}
+.cal-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
+.cal-legend-item{ display:flex; align-items:center; gap:5px; font-size:9.5px; color: var(--text-dim);}
+.cal-legend-item .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0;}
+.cal-weekdays{
+  display:grid;
+  grid-template-columns: repeat(7,1fr);
+  text-align:center;
+  font-size:10.5px;
+  color: var(--text-faint);
+  margin-bottom:6px;
+}
+.cal-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:4px;}
+.cal-cell{
+  aspect-ratio:1;
+  border-radius:10px;
+  background: var(--bg-card);
+  border:1px solid var(--line);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:3px;
+  cursor:pointer;
+}
+.cal-cell.empty{ background:transparent; border:none; cursor:default;}
+.cal-cell.today{ border-color: var(--accent-gold);}
+.cal-cell .cal-date-num{ font-family:'Bebas Neue'; font-size:13px; color: var(--text);}
+.cal-cell .cal-dots{ display:flex; gap:2px; height:5px;}
+.cal-cell .cal-dots span{ width:5px; height:5px; border-radius:50%; display:inline-block;}
+
+.cal-day-detail-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid var(--line);
+}
+.cal-day-detail-row:last-child{ border-bottom:none;}
 </style>
 </head>
 <body>
@@ -615,6 +699,16 @@ body{
 </div>
 
 <div class="day-tabs" id="dayTabs"></div>
+
+<div class="protein-bar" id="proteinBar">
+  <div class="protein-icon">🥤</div>
+  <div class="protein-info">
+    <div class="protein-label">プロテイン（今日）</div>
+    <div class="protein-count" id="proteinCount">0 / 2 杯</div>
+  </div>
+  <button class="protein-btn minus" id="proteinMinusBtn">−</button>
+  <button class="protein-btn plus" id="proteinPlusBtn">＋</button>
+</div>
 
 <div class="day-info" id="dayInfoBox">
   <div class="ring-wrap">
@@ -652,7 +746,6 @@ body{
     <div class="cardio-type-chip" id="chipHiit">HIIT</div>
   </div>
 
-  <!-- WALK TIMER -->
   <div class="cardio-timer-box" id="walkBox">
     <div class="timer-phase">室内ウォーキング</div>
     <div class="cardio-timer-num num" id="walkTimerNum">00:00</div>
@@ -663,7 +756,6 @@ body{
     </div>
   </div>
 
-  <!-- HIIT TIMER -->
   <div class="cardio-timer-box" id="hiitBox" style="display:none;">
     <div class="hiit-settings">
       <div class="hiit-set-item">
@@ -703,6 +795,27 @@ body{
   <div class="cardio-history" id="cardioHistory"></div>
 </div>
 
+<!-- CALENDAR PANEL -->
+<div class="calendar-panel" id="calendarPanel" style="display:none;">
+  <div class="cal-header">
+    <button class="cal-nav-btn" id="calPrevBtn">‹</button>
+    <div class="cal-month-label" id="calMonthLabel">-</div>
+    <button class="cal-nav-btn" id="calNextBtn">›</button>
+  </div>
+  <div class="cal-legend">
+    <div class="cal-legend-item"><span class="dot" style="background:var(--chest)"></span>月 Push</div>
+    <div class="cal-legend-item"><span class="dot" style="background:var(--legs)"></span>火 脚/尻</div>
+    <div class="cal-legend-item"><span class="dot" style="background:var(--back)"></span>木 Pull</div>
+    <div class="cal-legend-item"><span class="dot" style="background:var(--shoulder)"></span>土 肩</div>
+    <div class="cal-legend-item"><span class="dot" style="background:var(--cardio)"></span>有酸素</div>
+    <div class="cal-legend-item"><span class="dot" style="background:var(--accent-gold)"></span>プロテイン</div>
+  </div>
+  <div class="cal-weekdays">
+    <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
 <div class="footer-note" id="footerNote">重量 × 回数 × 完了セットで概算ボリュームを計算しています。<br>入力内容は端末に自動保存されます。</div>
 
 <!-- REST TIMER OVERLAY -->
@@ -725,7 +838,18 @@ body{
     <div class="modal-item"><b>▶ ボタン</b>その種目のフォーム解説動画をYouTubeで検索して開く。</div>
     <div class="modal-item"><b>↺ ボタン</b>先週入力した重量を今週の空欄に引き継ぐ（2週目以降に表示）。そこから重量・回数を伸ばせているか確認する。</div>
     <div class="modal-item"><b>週の追加（+）</b>週チップの一番右の「+」で新しい週を追加できる。4週で終わらず、そのままずっと記録を続けられる。</div>
+    <div class="modal-item"><b>📅 カレンダー</b>実際の日付ごとに、何曜日のメニューをやったか・有酸素をやったか・プロテインを飲んだかが一目でわかる。日付をタップすると、その日の詳細（やった種目・重量・有酸素の時間）が見られる。</div>
+    <div class="modal-item"><b>🥤 プロテイン</b>上部の「＋」「−」で今日飲んだ杯数を記録。カレンダーにも反映される。</div>
     <div class="modal-close" id="modalCloseBtn">閉じる</div>
+  </div>
+</div>
+
+<!-- DAY DETAIL MODAL (calendar) -->
+<div class="modal-overlay" id="dayDetailModal">
+  <div class="modal-sheet">
+    <div class="modal-title" id="dayDetailTitle">-</div>
+    <div id="dayDetailBody"></div>
+    <div class="modal-close" id="dayDetailCloseBtn">閉じる</div>
   </div>
 </div>
 
@@ -794,19 +918,18 @@ let state = {
   week: 1,
   day: 'mon',
   maxWeek: 4,
-  log: {}, // { exId: [ {w,r,done}, ... ] }
-  prevLog: {}, // previous week's log, for "carry over weight" feature
-  cardioType: 'walk', // 'walk' | 'hiit'
-  cardioSessions: []
+  log: {},
+  prevLog: {},
+  cardioType: 'walk',
+  cardioSessions: [],
+  proteinLog: {},
+  strengthSessions: [],
+  calYear: new Date().getFullYear(),
+  calMonthIdx: new Date().getMonth()
 };
 
 let timerInterval = null;
 
-// ---------- STORAGE ADAPTER ----------
-// Inside Claude, window.storage is available. Once this file is saved and
-// opened on its own (e.g. added to the iPhone home screen), window.storage
-// does not exist, so we fall back to the browser's own localStorage —
-// which works reliably for a page running on its own.
 const storageAPI = (function(){
   if(window.storage && typeof window.storage.get === 'function' && typeof window.storage.set === 'function'){
     return window.storage;
@@ -831,8 +954,7 @@ async function loadDay(week, day){
   try{
     const res = await storageAPI.get(key);
     if(res && res.value){ return JSON.parse(res.value); }
-  }catch(e){ /* not found yet */ }
-  // build empty structure
+  }catch(e){}
   const empty = {};
   PROGRAM[day].exercises.forEach(ex=>{
     empty[ex.id] = Array.from({length: ex.sets}, ()=>({w:'', r:'', done:false}));
@@ -844,7 +966,7 @@ async function loadMaxWeek(){
   try{
     const res = await storageAPI.get('meta:maxWeek');
     if(res && res.value){ return parseInt(res.value,10) || 4; }
-  }catch(e){ /* not set yet */ }
+  }catch(e){}
   return 4;
 }
 async function saveMaxWeek(w){
@@ -856,7 +978,7 @@ async function loadCardioSessions(){
   try{
     const res = await storageAPI.get('cardio:sessions');
     if(res && res.value){ return JSON.parse(res.value); }
-  }catch(e){ /* not set yet */ }
+  }catch(e){}
   return [];
 }
 async function saveCardioSessions(list){
@@ -872,6 +994,44 @@ async function deleteCardioSession(id){
   await saveCardioSessions(state.cardioSessions);
 }
 
+async function loadProteinLog(){
+  try{
+    const res = await storageAPI.get('protein:log');
+    if(res && res.value){ return JSON.parse(res.value); }
+  }catch(e){}
+  return {};
+}
+async function saveProteinLog(log){
+  try{ await storageAPI.set('protein:log', JSON.stringify(log)); }
+  catch(e){ console.error('save protein log failed', e); }
+}
+async function changeProteinCount(dateStr, delta){
+  const cur = state.proteinLog[dateStr] || 0;
+  const next = Math.max(0, cur + delta);
+  if(next === 0){ delete state.proteinLog[dateStr]; }
+  else { state.proteinLog[dateStr] = next; }
+  await saveProteinLog(state.proteinLog);
+}
+
+async function loadStrengthSessions(){
+  try{
+    const res = await storageAPI.get('strength:sessions');
+    if(res && res.value){ return JSON.parse(res.value); }
+  }catch(e){}
+  return [];
+}
+async function saveStrengthSessions(list){
+  try{ await storageAPI.set('strength:sessions', JSON.stringify(list)); }
+  catch(e){ console.error('save strength sessions failed', e); }
+}
+async function recordStrengthSession(day, week){
+  const dateStr = todayStr();
+  const idx = state.strengthSessions.findIndex(s=>s.date===dateStr && s.day===day);
+  if(idx>=0){ state.strengthSessions[idx].week = week; }
+  else { state.strengthSessions.push({date:dateStr, day, week}); }
+  await saveStrengthSessions(state.strengthSessions);
+}
+
 let saveTimers = {};
 function saveDay(week, day, data){
   const key = storageKey(week, day);
@@ -882,7 +1042,6 @@ function saveDay(week, day, data){
   }, 350);
 }
 
-// ---------- RENDER: HEADER ----------
 function renderWeekRow(){
   const row = document.getElementById('weekRow');
   row.innerHTML = '';
@@ -905,7 +1064,6 @@ function renderWeekRow(){
   };
   row.appendChild(addChip);
 
-  // keep the active chip in view
   requestAnimationFrame(()=>{
     const active = row.querySelector('.week-chip.active');
     if(active) active.scrollIntoView({inline:'center', block:'nearest'});
@@ -928,6 +1086,12 @@ function renderDayTabs(){
   cardioTab.innerHTML = '<div class="dow">🏃</div><div class="part">有酸素</div>';
   cardioTab.onclick = ()=>{ state.day = 'cardio'; refresh(); };
   wrap.appendChild(cardioTab);
+
+  const calTab = document.createElement('div');
+  calTab.className = 'day-tab calendar-tab' + (state.day==='calendar' ? ' active' : '');
+  calTab.innerHTML = '<div class="dow">📅</div><div class="part">カレンダー</div>';
+  calTab.onclick = ()=>{ state.day = 'calendar'; refresh(); };
+  wrap.appendChild(calTab);
 }
 
 function computeProgress(){
@@ -954,7 +1118,6 @@ function renderDayInfo(){
   document.getElementById('ringTxt').textContent = pct+'%';
 }
 
-// ---------- RENDER: EXERCISES ----------
 function renderExercises(){
   const wrap = document.getElementById('exList');
   wrap.innerHTML = '';
@@ -1011,7 +1174,6 @@ function renderExercises(){
     wrap.appendChild(card);
   });
 
-  // bind inputs
   wrap.querySelectorAll('.set-input').forEach(inp=>{
     inp.addEventListener('input', onSetInputChange);
   });
@@ -1059,11 +1221,13 @@ function onSetCheckToggle(e){
   state.log[exId][setIdx].done = !state.log[exId][setIdx].done;
   e.currentTarget.classList.toggle('done');
   saveDay(state.week, state.day, state.log);
+  if(state.log[exId][setIdx].done){
+    recordStrengthSession(state.day, state.week);
+  }
   renderDayInfo();
   renderVolumeSummary();
 }
 
-// ---------- VOLUME SUMMARY ----------
 function renderVolumeSummary(){
   const p = PROGRAM[state.day];
   const totals = {};
@@ -1075,7 +1239,7 @@ function renderVolumeSummary(){
       if(r.done){
         const w = parseFloat(r.w)||0;
         const reps = parseFloat(r.r)||0;
-        totals[ex.muscle] += (w * reps) || reps; // fall back to reps if no weight (bodyweight moves)
+        totals[ex.muscle] += (w * reps) || reps;
       }
     });
   });
@@ -1098,7 +1262,6 @@ function renderVolumeSummary(){
   });
 }
 
-// ---------- REST TIMER ----------
 function startRestTimer(seconds, name){
   clearInterval(timerInterval);
   const overlay = document.getElementById('timerOverlay');
@@ -1129,7 +1292,6 @@ function closeTimer(){
 document.getElementById('timerOverlay').addEventListener('click', closeTimer);
 document.getElementById('timerSkipBtn').addEventListener('click', (e)=>{ e.stopPropagation(); closeTimer(); });
 
-// ---------- INFO MODAL ----------
 document.getElementById('infoBtn').addEventListener('click', ()=>{
   document.getElementById('infoModal').classList.add('show');
 });
@@ -1140,13 +1302,12 @@ document.getElementById('infoModal').addEventListener('click', (e)=>{
   if(e.target.id === 'infoModal') document.getElementById('infoModal').classList.remove('show');
 });
 
-// ---------- CARDIO ----------
 let walkInterval = null;
-let walkElapsed = 0; // seconds
+let walkElapsed = 0;
 let walkRunning = false;
 
 let hiitInterval = null;
-let hiitState = null; // {phase, remaining, round, totalRounds, workSec, restSec}
+let hiitState = null;
 
 function fmtMMSS(totalSec){
   const m = Math.floor(totalSec/60);
@@ -1171,7 +1332,6 @@ function renderCardioPanel(){
 document.getElementById('chipWalk').addEventListener('click', ()=>{ state.cardioType='walk'; renderCardioPanel(); });
 document.getElementById('chipHiit').addEventListener('click', ()=>{ state.cardioType='hiit'; renderCardioPanel(); });
 
-// ----- WALK TIMER (count up) -----
 function updateWalkDisplay(){
   document.getElementById('walkTimerNum').textContent = fmtMMSS(walkElapsed);
   const target = document.getElementById('walkTarget');
@@ -1215,7 +1375,6 @@ document.getElementById('walkResetBtn').addEventListener('click', async ()=>{
   updateWalkDisplay();
 });
 
-// ----- HIIT TIMER (work/rest intervals) -----
 function updateHiitSettingsDisplay(){
   const work = parseInt(document.getElementById('hiitWork').value,10) || 0;
   const rest = parseInt(document.getElementById('hiitRest').value,10) || 0;
@@ -1296,7 +1455,6 @@ document.getElementById('hiitStartBtn').addEventListener('click', ()=>{
 
 document.getElementById('hiitResetBtn').addEventListener('click', ()=>{ finishHiit(false); });
 
-// ----- MANUAL LOG (no timer) -----
 document.getElementById('manualLogBtn').addEventListener('click', ()=>{
   const form = document.getElementById('manualForm');
   form.style.display = form.style.display === 'none' ? 'flex' : 'none';
@@ -1314,7 +1472,6 @@ document.getElementById('manualSaveBtn').addEventListener('click', async ()=>{
   renderCardioHistory();
 });
 
-// ----- STATS + HISTORY -----
 function renderCardioStats(){
   const cutoff = Date.now() - 7*24*60*60*1000;
   const recent = state.cardioSessions.filter(s=> new Date(s.date).getTime() >= cutoff);
@@ -1357,29 +1514,183 @@ function renderCardioHistory(){
 updateWalkDisplay();
 updateHiitSettingsDisplay();
 
-// ---------- MAIN REFRESH ----------
-function setTrainingViewVisible(visible){
-  document.getElementById('weekRow').style.display = visible ? 'flex' : 'none';
-  document.getElementById('dayInfoBox').style.display = visible ? 'flex' : 'none';
-  document.getElementById('warmupNote').style.display = visible ? 'block' : 'none';
-  document.getElementById('exList').style.display = visible ? 'flex' : 'none';
-  document.getElementById('summaryBox').style.display = visible ? 'block' : 'none';
-  document.getElementById('cardioPanel').style.display = visible ? 'none' : 'block';
-  document.getElementById('footerNote').style.display = visible ? 'block' : 'none';
+function renderProteinBar(){
+  const count = state.proteinLog[todayStr()] || 0;
+  document.getElementById('proteinCount').textContent = count + ' / 2 杯';
+}
+document.getElementById('proteinPlusBtn').addEventListener('click', async ()=>{
+  await changeProteinCount(todayStr(), 1);
+  renderProteinBar();
+  if(state.day === 'calendar') renderCalendar();
+});
+document.getElementById('proteinMinusBtn').addEventListener('click', async ()=>{
+  await changeProteinCount(todayStr(), -1);
+  renderProteinBar();
+  if(state.day === 'calendar') renderCalendar();
+});
+
+const DAY_TYPE_COLOR = { mon:'var(--chest)', tue:'var(--legs)', thu:'var(--back)', sat:'var(--shoulder)' };
+const WEEKDAY_LABELS = ['日','月','火','水','木','金','土'];
+
+function renderCalendar(){
+  const year = state.calYear, month = state.calMonthIdx;
+  document.getElementById('calMonthLabel').textContent = year + '年' + (month+1) + '月';
+
+  const firstDay = new Date(year, month, 1);
+  const startWeekday = firstDay.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayStrVal = todayStr();
+
+  const strengthByDate = {};
+  state.strengthSessions.forEach(s=>{
+    if(!strengthByDate[s.date]) strengthByDate[s.date] = [];
+    strengthByDate[s.date].push(s);
+  });
+  const cardioByDate = {};
+  state.cardioSessions.forEach(s=>{
+    if(!cardioByDate[s.date]) cardioByDate[s.date] = [];
+    cardioByDate[s.date].push(s);
+  });
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  for(let i=0;i<startWeekday;i++){
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell empty';
+    grid.appendChild(empty);
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (dateStr===todayStrVal ? ' today' : '');
+
+    let dots = '';
+    const sSessions = strengthByDate[dateStr];
+    if(sSessions && sSessions.length){
+      [...new Set(sSessions.map(s=>s.day))].forEach(dt=>{
+        dots += `<span style="background:${DAY_TYPE_COLOR[dt]||'var(--text-dim)'}"></span>`;
+      });
+    }
+    if(cardioByDate[dateStr] && cardioByDate[dateStr].length){
+      dots += '<span style="background:var(--cardio)"></span>';
+    }
+    if(state.proteinLog[dateStr]){
+      dots += '<span style="background:var(--accent-gold)"></span>';
+    }
+
+    cell.innerHTML = `<div class="cal-date-num">${d}</div><div class="cal-dots">${dots}</div>`;
+    cell.addEventListener('click', ()=> openDayDetail(dateStr));
+    grid.appendChild(cell);
+  }
+}
+
+document.getElementById('calPrevBtn').addEventListener('click', ()=>{
+  state.calMonthIdx--;
+  if(state.calMonthIdx < 0){ state.calMonthIdx = 11; state.calYear--; }
+  renderCalendar();
+});
+document.getElementById('calNextBtn').addEventListener('click', ()=>{
+  state.calMonthIdx++;
+  if(state.calMonthIdx > 11){ state.calMonthIdx = 0; state.calYear++; }
+  renderCalendar();
+});
+
+async function openDayDetail(dateStr){
+  const d = new Date(dateStr + 'T00:00:00');
+  document.getElementById('dayDetailTitle').textContent = (d.getMonth()+1) + '月' + d.getDate() + '日（' + WEEKDAY_LABELS[d.getDay()] + '）';
+
+  const sSessions = state.strengthSessions.filter(s=>s.date===dateStr);
+  const cSessions = state.cardioSessions.filter(s=>s.date===dateStr);
+  const proteinCount = state.proteinLog[dateStr] || 0;
+
+  let html = '';
+
+  if(!sSessions.length && !cSessions.length){
+    html += '<div class="modal-item" style="color:var(--text-faint);">この日は筋トレ・有酸素の記録はありません。</div>';
+  }
+
+  for(const s of sSessions){
+    const prog = PROGRAM[s.day];
+    const dayLog = await loadDay(s.week, s.day);
+    let exRows = '';
+    prog.exercises.forEach(ex=>{
+      const rows = (dayLog[ex.id]||[]).filter(r=>r.done);
+      if(!rows.length) return;
+      const detail = rows.map(r=> (r.w? r.w+'kg':'') + (r.r? '×'+r.r:'')).filter(Boolean).join(' / ');
+      exRows += `<div class="cal-day-detail-row"><div class="tag-dot" style="background:${MUSCLE[ex.muscle].color}"></div><div style="flex:1; font-size:12.5px;">${ex.name}</div><div style="font-size:11px; color:var(--text-dim);">${detail||'-'}</div></div>`;
+    });
+    html += `<div class="modal-item"><b>💪 ${prog.label}（${prog.part}）・ Week${s.week}</b></div>${exRows || '<div class="modal-item" style="color:var(--text-faint);">完了したセットはありません</div>'}`;
+  }
+
+  if(cSessions.length){
+    let cRows = '';
+    cSessions.forEach(s=>{
+      cRows += `<div class="cal-day-detail-row"><div style="flex:1; font-size:12.5px;">${s.type==='walk' ? '🚶 ウォーキング' : '🔥 HIIT'}</div><div style="font-size:11px; color:var(--text-dim);">${s.minutes}分</div></div>`;
+    });
+    html += `<div class="modal-item"><b>有酸素運動</b></div>${cRows}`;
+  }
+
+  html += `<div class="modal-item"><b>🥤 プロテイン</b></div>
+    <div class="cal-day-detail-row">
+      <button class="protein-btn minus" data-date="${dateStr}" data-delta="-1">−</button>
+      <div style="flex:1; text-align:center; font-family:'Bebas Neue'; font-size:16px;">${proteinCount} 杯</div>
+      <button class="protein-btn plus" data-date="${dateStr}" data-delta="1">＋</button>
+    </div>`;
+
+  const body = document.getElementById('dayDetailBody');
+  body.innerHTML = html;
+  body.querySelectorAll('.protein-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      await changeProteinCount(btn.dataset.date, parseInt(btn.dataset.delta,10));
+      renderProteinBar();
+      renderCalendar();
+      openDayDetail(dateStr);
+    });
+  });
+
+  document.getElementById('dayDetailModal').classList.add('show');
+}
+
+document.getElementById('dayDetailCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('dayDetailModal').classList.remove('show');
+});
+document.getElementById('dayDetailModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'dayDetailModal') document.getElementById('dayDetailModal').classList.remove('show');
+});
+
+function setView(mode){
+  const isTraining = mode === 'training';
+  document.getElementById('weekRow').style.display = isTraining ? 'flex' : 'none';
+  document.getElementById('dayInfoBox').style.display = isTraining ? 'flex' : 'none';
+  document.getElementById('warmupNote').style.display = isTraining ? 'block' : 'none';
+  document.getElementById('exList').style.display = isTraining ? 'flex' : 'none';
+  document.getElementById('summaryBox').style.display = isTraining ? 'block' : 'none';
+  document.getElementById('cardioPanel').style.display = mode === 'cardio' ? 'block' : 'none';
+  document.getElementById('calendarPanel').style.display = mode === 'calendar' ? 'block' : 'none';
+  document.getElementById('footerNote').style.display = isTraining ? 'block' : 'none';
 }
 
 async function refresh(){
   state.maxWeek = await loadMaxWeek();
   if(state.week > state.maxWeek) state.week = state.maxWeek;
+  state.proteinLog = await loadProteinLog();
   renderWeekRow();
   renderDayTabs();
+  renderProteinBar();
 
   if(state.day === 'cardio'){
-    setTrainingViewVisible(false);
+    setView('cardio');
     state.cardioSessions = await loadCardioSessions();
     renderCardioPanel();
+  } else if(state.day === 'calendar'){
+    setView('calendar');
+    state.strengthSessions = await loadStrengthSessions();
+    state.cardioSessions = await loadCardioSessions();
+    renderCalendar();
   } else {
-    setTrainingViewVisible(true);
+    setView('training');
     state.log = await loadDay(state.week, state.day);
     state.prevLog = state.week > 1 ? await loadDay(state.week - 1, state.day) : null;
     renderDayInfo();
