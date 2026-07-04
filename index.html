@@ -28,6 +28,7 @@
   --ok: #5fa377;
   --cardio: #3fb8af;
   --calendar: #5b8def;
+  --protein: #e0679a;
 }
 
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent;}
@@ -808,7 +809,7 @@ body{
     <div class="cal-legend-item"><span class="dot" style="background:var(--back)"></span>木 Pull</div>
     <div class="cal-legend-item"><span class="dot" style="background:var(--shoulder)"></span>土 肩</div>
     <div class="cal-legend-item"><span class="dot" style="background:var(--cardio)"></span>有酸素</div>
-    <div class="cal-legend-item"><span class="dot" style="background:var(--accent-gold)"></span>プロテイン</div>
+    <div class="cal-legend-item"><span class="dot" style="background:var(--protein)"></span>プロテイン</div>
   </div>
   <div class="cal-weekdays">
     <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
@@ -873,7 +874,7 @@ const PROGRAM = {
       { id:'mon3', name:'フラットDBフライ', muscle:'chest', sets:3, reps:'12-15', rir:'1-2', tempo:'3110', rest:60, yt:'ダンベルフライ フォーム' },
       { id:'mon4', name:'サイドレイズ（最終セットのみマイオレップ）', muscle:'shoulder', sets:4, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'サイドレイズ フォーム' },
       { id:'mon5', name:'DBオーバーヘッドトライセップスエクステンション', muscle:'arms', sets:3, reps:'12-15', rir:'1', tempo:'3010', rest:60, yt:'ダンベル オーバーヘッドトライセプスエクステンション' },
-      { id:'mon6', name:'ベンチディップス（仕上げ）', muscle:'arms', sets:2, reps:'限界', rir:'0', tempo:'通常', rest:60, yt:'ベンチディップス フォーム' },
+      { id:'mon6', name:'クローズグリップDBフロアプレス', muscle:'arms', sets:3, reps:'12-15', rir:'1', tempo:'3010', rest:60, yt:'クローズグリップ ダンベル フロアプレス フォーム' },
     ]
   },
   tue: {
@@ -891,9 +892,9 @@ const PROGRAM = {
     exercises: [
       { id:'thu1', name:'ワンハンドDBロー', muscle:'back', sets:4, reps:'10-15', rir:'1-2', tempo:'2011', rest:90, yt:'ダンベル ワンハンドロー フォーム' },
       { id:'thu2', name:'チェストサポーテッドロー', muscle:'back', sets:3, reps:'12-15', rir:'1-2', tempo:'2011', rest:75, yt:'チェストサポーテッドロー ダンベル フォーム' },
-      { id:'thu3', name:'DBプルオーバー', muscle:'back', sets:3, reps:'12-15', rir:'1-2', tempo:'3010', rest:60, yt:'ダンベルプルオーバー フォーム' },
       { id:'thu4', name:'リアデルトフライ', muscle:'shoulder', sets:4, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'リアデルトフライ ダンベル フォーム' },
       { id:'thu5', name:'DBシュラッグ', muscle:'back', sets:3, reps:'12-15', rir:'1', tempo:'通常', rest:60, yt:'ダンベルシュラッグ フォーム' },
+      { id:'thu3', name:'DBプルオーバー（補助）', muscle:'back', sets:2, reps:'12-15', rir:'1-2', tempo:'3010', rest:60, yt:'ダンベルプルオーバー フォーム' },
       { id:'thu6', name:'インクラインDBカール', muscle:'arms', sets:3, reps:'10-12', rir:'1', tempo:'3010', rest:60, yt:'インクラインダンベルカール フォーム' },
       { id:'thu7', name:'ハンマーカール', muscle:'arms', sets:2, reps:'12-15', rir:'1', tempo:'通常', rest:45, yt:'ハンマーカール フォーム' },
     ]
@@ -903,7 +904,7 @@ const PROGRAM = {
     exercises: [
       { id:'sat1', name:'アーノルドプレス', muscle:'shoulder', sets:3, reps:'10-12', rir:'1-2', tempo:'2011', rest:90, yt:'アーノルドプレス フォーム' },
       { id:'sat2', name:'サイドレイズ', muscle:'shoulder', sets:5, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'サイドレイズ フォーム' },
-      { id:'sat3', name:'フロントレイズ', muscle:'shoulder', sets:2, reps:'15', rir:'1', tempo:'通常', rest:45, yt:'フロントレイズ ダンベル フォーム' },
+      { id:'sat3', name:'リーニングサイドレイズ（体を傾けて）', muscle:'shoulder', sets:3, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'リーニングサイドレイズ ダンベル フォーム' },
       { id:'sat4', name:'インクラインDBフライ', muscle:'chest', sets:3, reps:'12-15', rir:'1', tempo:'通常', rest:60, yt:'インクラインダンベルフライ フォーム' },
       { id:'sat5', name:'ダイヤモンドプッシュアップ', muscle:'arms', sets:3, reps:'限界', rir:'0', tempo:'通常', rest:60, yt:'ダイヤモンドプッシュアップ フォーム' },
       { id:'sat6', name:'片脚ヒップスラスト', muscle:'legs', sets:3, reps:'15-20/脚', rir:'1', tempo:'通常', rest:60, yt:'片脚ヒップスラスト フォーム' },
@@ -1577,7 +1578,7 @@ function renderCalendar(){
       dots += '<span style="background:var(--cardio)"></span>';
     }
     if(state.proteinLog[dateStr]){
-      dots += '<span style="background:var(--accent-gold)"></span>';
+      dots += '<span style="background:var(--protein)"></span>';
     }
 
     cell.innerHTML = `<div class="cal-date-num">${d}</div><div class="cal-dots">${dots}</div>`;
@@ -1705,4 +1706,3 @@ refresh();
 </script>
 </body>
 </html>
-
