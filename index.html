@@ -178,6 +178,16 @@ body{
 .meta-item .num{ color: var(--text); font-size:14px; margin-right:2px;}
 .meta-item .lbl{ letter-spacing:0.04em;}
 
+.ex-note{
+  margin: 0 14px 14px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: rgba(242,177,52,0.08);
+  border: 1px solid rgba(242,177,52,0.3);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #e8cf94;
+}
 .ex-foot{
   display:flex;
   padding: 0 14px 14px;
@@ -319,6 +329,8 @@ body{
     <div class="modal-item"><b>RIR（Reps in Reserve）</b>あと何回できる余力を残してセットを終えるか。RIR 1 = あと1回できる強度で止める。RIR 0 = 完全に限界まで。</div>
     <div class="modal-item"><b>テンポ（例: 3010）</b>4桁でおろす秒数・下位置で止める秒数・上げる秒数・上位置で止める秒数を表す。「3010」＝3秒でおろす→止めない→1秒で上げる→止めない。</div>
     <div class="modal-item"><b>マイオレップ</b>通常セット後に15秒だけ休み、限界まで5回程度を追加で数セット行うテクニック。軽い重量の種目に効果的。</div>
+    <div class="modal-item"><b>負荷の足し方（DBが10kgまでのとき）</b>順番に試す。①規定回数の上限まで全セットできたら、②下ろす動きを4秒にする、③リュックに重さを入れて背負う、④レスト時間を15秒短くする。セットは限界の2〜3回手前で止める（最後だけ0〜1回手前）。</div>
+    <div class="modal-item"><b>4週ごとの見直し</b>4週間に1回、週平均体重・腹囲・胸の写真・主要種目の回数と重さを確認する。4週で体重が1.2〜2.0kg減り、回数と重さが落ちていなければそのまま続ける。減りが1.2kg未満なら食事を1日100〜200kcal減らすか歩数を足す。2.0kgを超えて減る、または回数や重さが落ちるなら、食事を1日100〜200kcal増やす。体脂肪率15%前後に近づいたら、減量を止めて維持か増量に切り替えるかを判断する。体重は毎日同じ条件（朝、トイレ後）で測り、週平均で見る。</div>
     <div class="modal-item"><b>ユニラテラル種目</b>片手・片脚で行う種目。左右別に効かせられるため、軽いダンベルでも負荷を高めやすい。</div>
     <div class="modal-item"><b>週のスケジュール</b>月・火・木・金・日がトレーニング日、水・土が休養日（胸特化の翌日にすぐ肩特化が来ないよう、間に休養日を挟む配置にしています）。</div>
     <div class="modal-item"><b>▶ ボタン</b>その種目のフォーム解説動画をYouTubeで検索して開く。</div>
@@ -350,7 +362,7 @@ const PROGRAM = {
       { id:'mon4', name:'サイドレイズ（最終セットのみマイオレップ）', muscle:'shoulder', sets:4, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'サイドレイズ フォーム' },
       { id:'mon5', name:'DBオーバーヘッドトライセップスエクステンション', muscle:'arms', sets:3, reps:'12-15', rir:'1', tempo:'3010', rest:60, yt:'ダンベル オーバーヘッドトライセプスエクステンション' },
       { id:'mon6', name:'クローズグリップDBフロアプレス', muscle:'arms', sets:3, reps:'12-15', rir:'1', tempo:'3010', rest:60, yt:'クローズグリップ ダンベル フロアプレス フォーム' },
-      { id:'mon7', name:'チェアディップス（前傾姿勢・大胸筋下部）', muscle:'chest', sets:3, reps:'12-15', rir:'1', tempo:'通常', rest:60, yt:'チェアディップス 前傾姿勢 下部胸筋 フォーム' },
+      { id:'mon7', name:'チェアディップス（前傾姿勢・大胸筋下部）', muscle:'chest', sets:3, reps:'12-15', rir:'1', tempo:'4010', rest:60, yt:'チェアディップス 前傾姿勢 下部胸筋 フォーム', note:'上体を前に倒し、肘は45度ほど開いて沈む。下ろす動きを4秒かける。15回×3セットで余裕が出たら、リュックに本やペットボトルを入れて背負い、重さを足す（金曜の荷重ディップスと同じ考え方）。' },
     ]
   },
   tue: {
@@ -384,11 +396,13 @@ const PROGRAM = {
   fri: {
     dow:'金', label:'胸特化', part:'胸',
     exercises: [
-      { id:'fri1', name:'フラットDBプレス', muscle:'chest', sets:4, reps:'8-12', rir:'2', tempo:'3010', rest:90, yt:'ダンベルプレス フォーム' },
+      { id:'fri1', name:'フラットDBプレス', muscle:'chest', sets:4, reps:'8-12', rir:'2', tempo:'3010', rest:90, yt:'ダンベルプレス フォーム', note:'下ろす動きを3秒かけ、胸の下側が伸びる位置まで深く下ろす。全セット上限の12回に届いたら、次回は下ろす時間を4秒にして負荷を上げる（DBが10kgまでのため）。' },
+      { id:'fri7', name:'前傾チェアディップス（荷重・大胸筋下部）', muscle:'chest', sets:4, reps:'8-12', rir:'1-2', tempo:'4010', rest:90, yt:'チェアディップス 前傾姿勢 胸 リュック 荷重', note:'胸の下部を狙う中心種目。上体を前に倒し、胸が足の方へ向かう意識で沈む。下ろす動きは4秒。リュックにペットボトルや本を入れて背負い、8〜12回の範囲で限界の2〜3回手前で止まる重さにする。12回×全セットできたら重さを足す。肩に痛みが出たら深く沈みすぎない。' },
       { id:'fri2', name:'インクラインDBプレス（浅め15〜20度）', muscle:'chest', sets:3, reps:'10-12', rir:'1-2', tempo:'2011', rest:75, yt:'インクラインダンベルプレス 15度 フォーム' },
       { id:'fri3', name:'スヴェンドプレス', muscle:'chest', sets:3, reps:'15', rir:'1', tempo:'通常', rest:60, yt:'スヴェンドプレス フォーム' },
       { id:'fri4', name:'フラットDBフライ（ストレッチ強調）', muscle:'chest', sets:3, reps:'12-15', rir:'1', tempo:'4010', rest:60, yt:'ダンベルフライ ストレッチ フォーム' },
-      { id:'fri5', name:'デクラインプッシュアップ（足をベンチに乗せて）', muscle:'chest', sets:3, reps:'限界', rir:'0', tempo:'通常', rest:60, yt:'デクラインプッシュアップ フォーム' },
+      { id:'fri5', name:'デクラインプッシュアップ（足をベンチに乗せて・大胸筋上部寄り）', muscle:'chest', sets:3, reps:'限界', rir:'0', tempo:'通常', rest:60, yt:'デクラインプッシュアップ フォーム', note:'足を高くすると上部寄りの種目になる。下部を狙う種目は、この前の前傾ディップスと次の手を高くしたプッシュアップ。' },
+      { id:'fri8', name:'手を高くしたプッシュアップ（ベンチに手・荷重・大胸筋下部寄り）', muscle:'chest', sets:3, reps:'10-15', rir:'1', tempo:'3010', rest:60, yt:'インクラインプッシュアップ 手を高く 下部胸筋 リュック', note:'手をベンチに置き、体を斜めにして胸の下側へ向かって押す。リュックを背負い、10〜15回で限界の1〜2回手前の重さにする。軽すぎるときは下ろす動きを4秒にして負荷を上げる。' },
       { id:'fri6', name:'ワイドプッシュアップ（仕上げ）', muscle:'chest', sets:2, reps:'限界', rir:'0', tempo:'通常', rest:45, yt:'ワイドプッシュアップ フォーム' },
     ]
   },
@@ -455,6 +469,7 @@ function renderExercises(){
         <div class="meta-item"><span class="num">${ex.tempo}</span><span class="lbl">テンポ</span></div>
         <div class="meta-item"><span class="num">${ex.rest}s</span><span class="lbl">レスト</span></div>
       </div>
+      ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
       <div class="ex-foot">
         <a class="yt-btn" href="${ytUrl}">▶</a>
         <button class="rest-btn" data-rest="${ex.rest}" data-name="${ex.name}">⏱ レスト開始（${ex.rest}秒）</button>
