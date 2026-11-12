@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="app-version" content="2026-11-12-3">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング - トレーニング参照</title>
@@ -481,6 +482,31 @@ function refresh(){
 
 refresh();
 
+})();
+</script>
+
+<script>
+/* 新しい版が公開されたら、自動で読み込み直す（ホーム画面のアプリが古い表示を覚え続けるのを防ぐ） */
+(function(){
+  var cur = document.querySelector('meta[name="app-version"]');
+  if(!cur || !window.fetch) return;
+  function check(){
+    fetch(location.href.split('#')[0], {cache:'reload'})
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var m = t.match(/<meta name="app-version" content="([^"]+)"/);
+        if(!m || m[1] === cur.content) return;
+        var key = 'app-reloaded-' + m[1];
+        try{
+          if(sessionStorage.getItem(key)) return;
+          sessionStorage.setItem(key, '1');
+        }catch(e){ return; }
+        location.reload();
+      })
+      .catch(function(){});
+  }
+  check();
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) check(); });
 })();
 </script>
 </body>
