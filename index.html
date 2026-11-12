@@ -2,354 +2,306 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング - トレーニング参照</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap");
 
+/* ===== book theme（色・文字・余白） ===== */
 :root{
-  --bg: #121214;
-  --bg-card: #1b1b1e;
-  --bg-card-elevated: #222226;
-  --line: #2a2a2e;
-  --text: #f2f0ec;
-  --text-dim: #93939a;
-  --text-faint: #5c5c62;
-  --accent-red: #e8432f;
-  --accent-gold: #f2b134;
-  --chest: #e8432f;
-  --shoulder: #f2b134;
-  --back: #4d92a8;
-  --arms: #8b7ec8;
-  --legs: #5fa377;
-  --abs: #c99a5b;
+  color-scheme: light;
+  --bg:#F3E9DC; --ink:#3E2723; --ink-soft:#4A332C; --ink-mid:#7A4E2D; --ink-faint:#7A6450;
+  --hairline:#D9C9B2; --hairline-soft:#E6DAC8; --accent:#A23B3B; --accent-ink:#F3E9DC;
+  --font-head:"Shippori Mincho", serif;
+  --font-body:"Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:40px; --s6:48px; --s7:56px; --s8:64px;
+  --measure:42rem;
 }
-
-*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent;}
-
-body{
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Noto Sans JP', sans-serif;
-  min-height:100vh;
-  padding-bottom: 40px;
-  position: relative;
-}
-
-@media (min-width: 640px){
-  html{ background: #0a0a0b; }
-  body{
-    max-width: 460px;
-    margin: 0 auto;
-    min-height: 100vh;
-    box-shadow: 0 0 60px rgba(0,0,0,0.5);
-    border-left: 1px solid var(--line);
-    border-right: 1px solid var(--line);
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#231B18; --ink:#EDE3D4; --ink-soft:#C9BCA9; --ink-mid:#A3927C; --ink-faint:#998875;
+    --hairline:#45362E; --hairline-soft:#332822; --accent:#C96A6A; --accent-ink:#231B18;
   }
-  .app-header{ position: sticky; top:0; }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#231B18; --ink:#EDE3D4; --ink-soft:#C9BCA9; --ink-mid:#A3927C; --ink-faint:#998875;
+  --hairline:#45362E; --hairline-soft:#332822; --accent:#C96A6A; --accent-ink:#231B18;
 }
 
-.num{font-family:'Bebas Neue', 'Noto Sans JP', sans-serif; letter-spacing: 0.02em;}
+*, *::before, *::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--ink-soft);
+  font-family:var(--font-body); font-size:1rem; line-height:1.9;
+  word-break:auto-phrase; line-break:strict;
+  padding-left:max(var(--s2), env(safe-area-inset-left, 0px));
+  padding-right:max(var(--s2), env(safe-area-inset-right, 0px));
+  padding-block:var(--s4) var(--s8);
+}
+body::before{
+  content:""; position:fixed; inset:0 0 auto;
+  height:env(safe-area-inset-top, 0px); z-index:10; background:var(--bg);
+}
+.wrap{ max-width:var(--measure); margin-inline:auto; }
 
-.app-header{
-  padding: 22px 18px 16px;
-  border-bottom: 1px solid var(--line);
-  position: sticky;
-  top:0;
-  background: linear-gradient(180deg, var(--bg) 80%, transparent);
-  z-index: 20;
-  backdrop-filter: blur(6px);
+h1,h2,h3{
+  font-family:var(--font-head); color:var(--ink); font-weight:700;
+  line-height:1.5; text-wrap:balance; margin:var(--s5) 0 var(--s2);
 }
-.eyebrow{
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--accent-gold);
-  font-weight: 700;
-}
-.title{
-  font-size: 20px;
-  font-weight: 900;
-  margin-top: 4px;
-}
-.title-sub{
-  font-size: 11.5px;
-  color: var(--text-dim);
-  margin-top: 4px;
-  line-height: 1.5;
-}
+h1{ font-size:clamp(1.6rem, 5.5vw, 2.1rem); letter-spacing:.06em; margin:var(--s1) 0 var(--s1); }
+h2{ font-size:1.25rem; padding-bottom:var(--s1); border-bottom:1px solid var(--ink); }
+h3{ font-size:1.05rem; }
+p{ margin:0 0 var(--s2); }
+strong,b{ color:var(--ink); font-weight:700; }
+a{ color:inherit; text-decoration:none; border-bottom:1px solid var(--hairline); }
+a:hover{ color:var(--accent); border-color:var(--accent); }
+a:focus-visible,button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+dl{ margin:0 0 var(--s3); }
+dt{ color:var(--ink); font-weight:700; margin-top:var(--s3); }
+dt:first-child{ margin-top:0; }
+dd{ margin:var(--s1) 0 0; font-size:.92rem; }
 
-.day-tabs{
-  display:flex;
-  gap:6px;
-  padding: 16px 18px 0;
-  overflow-x:auto;
+button{
+  font:inherit; font-size:.9rem; font-weight:700; color:var(--ink); background:none;
+  border:1px solid var(--ink); border-radius:0; padding:var(--s1) var(--s2); cursor:pointer;
 }
-.day-tab{
-  flex:1;
-  min-width: 76px;
-  text-align:center;
-  padding: 10px 6px;
-  border-radius: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  cursor:pointer;
-}
-.day-tab .dow{
-  font-family:'Bebas Neue';
-  font-size:20px;
-  color: var(--text);
-}
-.day-tab .part{
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-top: 2px;
-  font-weight:500;
-}
-.day-tab.active{
-  border-color: var(--accent-gold);
-  background: linear-gradient(160deg, rgba(242,177,52,0.14), var(--bg-card));
-}
-.day-tab.active .dow{color: var(--accent-gold);}
+button:hover{ color:var(--accent); border-color:var(--accent); }
 
-.day-info{
-  padding: 18px 18px 4px;
-  display:flex;
-  align-items:center;
-  gap: 10px;
+.meta{ font-size:.78rem; color:var(--ink-faint); }
+.tag{ font-size:.72rem; letter-spacing:.14em; color:var(--ink-faint); }
+.label-head{
+  display:block; margin:0 0 var(--s1);
+  font-size:.76rem; font-weight:700; letter-spacing:.08em; color:var(--ink);
 }
-.day-info-text{ flex:1;}
-.day-info-text .dname{ font-size:18px; font-weight:900;}
-.day-info-text .dsub{ font-size:11.5px; color: var(--text-dim); margin-top:2px; line-height:1.5;}
+.accent{ color:var(--accent); }
+.is-current{ border-bottom:2px solid var(--accent); }
 
-.info-btn{
-  width:30px; height:30px;
-  border-radius:50%;
-  border:1px solid var(--line);
-  background:var(--bg-card);
-  color: var(--text-dim);
-  font-family:'Bebas Neue';
-  font-size:14px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer;
-  flex-shrink:0;
-  text-decoration:none;
+.theme-switch{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 var(--s2); margin:var(--s2) 0; }
+.theme-switch__label{ font-size:.72rem; letter-spacing:.14em; color:var(--ink-faint); margin-right:var(--s1); }
+.theme-switch button{
+  appearance:none; -webkit-appearance:none; background:none; border:none; border-radius:0; margin:0;
+  padding:var(--s1) 0; font-family:inherit; font-size:.8rem; line-height:1.6; font-weight:400;
+  color:var(--ink-faint); border-bottom:2px solid transparent;
+}
+.theme-switch button:hover{ color:var(--ink); border-color:transparent; }
+.theme-switch button[aria-pressed="true"]{ color:var(--ink); font-weight:700; border-bottom-color:var(--ink); }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *, *::before, *::after{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
 }
 
-.warmup-note{
-  margin: 12px 18px 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(93,163,119,0.10);
-  border: 1px solid rgba(95,163,119,0.35);
-  font-size: 12px;
-  color: #a9d3b8;
-  line-height:1.6;
-}
-.warmup-note b{color:#c7e8d1;}
+/* ===== このアプリ固有 ===== */
+.head-links{ display:flex; align-items:baseline; gap:var(--s3); margin:var(--s2) 0 0; }
+.head-links button{ border:none; padding:var(--s1) 0; border-bottom:1px solid var(--hairline); font-weight:500; font-size:.85rem; color:inherit; }
+.head-links button:hover{ border-color:var(--accent); }
+.head-links a{ font-size:.85rem; font-weight:500; padding:var(--s1) 0; line-height:1.9; }
+.head-links button{ line-height:1.9; }
 
-.ex-list{ padding: 16px 18px 24px; display:flex; flex-direction:column; gap:12px;}
+.daybar{
+  position:sticky; top:env(safe-area-inset-top, 0px); z-index:5;
+  display:flex; margin:var(--s3) 0 0; background:var(--bg);
+  border-bottom:1px solid var(--hairline);
+}
+.daytab{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:0;
+  padding:var(--s1) 0; background:none; border:none; border-bottom:2px solid transparent;
+  color:var(--ink-faint); font-weight:400; line-height:1.4;
+}
+.daytab .dow{ font-family:var(--font-head); font-size:1.15rem; font-weight:700; }
+.daytab .part{ font-size:.64rem; letter-spacing:.02em; }
+.daytab:hover{ color:var(--ink); border-color:transparent; }
+.daytab.is-current{ color:var(--ink); border-bottom-color:var(--accent); }
 
-.ex-card{
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow:hidden;
-}
-.ex-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding: 14px 14px 10px;
-}
-.tag-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0;}
-.ex-name{ font-size:15px; font-weight:700; flex:1;}
-.ex-order{ font-family:'Bebas Neue'; font-size:13px; color: var(--text-faint); width:20px;}
+#dayName{ margin-top:var(--s4); }
+.warmup{ border-top:1px solid var(--hairline); padding-top:var(--s2); margin:var(--s3) 0 var(--s4); }
+.warmup p{ margin:0; font-size:.9rem; }
 
-.ex-meta{
-  display:flex;
-  gap:14px;
-  padding: 0 14px 14px;
-  flex-wrap:wrap;
-}
-.meta-item{ font-size:10.5px; color: var(--text-dim);}
-.meta-item .num{ color: var(--text); font-size:14px; margin-right:2px;}
-.meta-item .lbl{ letter-spacing:0.04em;}
-
-.ex-note{
-  margin: 0 14px 14px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  background: rgba(242,177,52,0.08);
-  border: 1px solid rgba(242,177,52,0.3);
-  font-size: 11.5px;
-  line-height: 1.6;
-  color: #e8cf94;
-}
-.ex-foot{
-  display:flex;
-  padding: 0 14px 14px;
-  gap:8px;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-.rest-btn{
-  flex:1;
-  background: var(--bg-card-elevated);
-  border: 1px solid var(--line);
-  color: var(--accent-gold);
-  border-radius: 9px;
-  padding: 9px 0;
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-}
-.yt-btn{
-  flex: 0 0 auto;
-  width: 42px;
-  background: var(--bg-card-elevated);
-  border: 1px solid var(--line);
-  color: #ff4d4d;
-  border-radius: 9px;
-  font-size:15px;
-  display:flex; align-items:center; justify-content:center;
-  text-decoration:none;
-  cursor:pointer;
-}
+.ex{ border-top:1px solid var(--hairline); padding-top:var(--s2); margin-bottom:var(--s4); }
+.ex .top{ display:flex; justify-content:space-between; align-items:baseline; }
+.ex h3{ margin:var(--s1) 0 var(--s2); }
+.ex-meta{ display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3); margin:0 0 var(--s2); }
+.ex-meta .it{ display:flex; align-items:baseline; gap:4px; }
+.ex-meta .mv{ color:var(--ink); font-size:1.05rem; font-variant-numeric:tabular-nums; }
+.ex-meta .ml{ font-size:.7rem; color:var(--ink-faint); letter-spacing:.04em; }
+.ex-note{ margin:0 0 var(--s2); font-size:.88rem; color:var(--ink-mid); }
+.ex-note .label-head{ color:var(--ink); }
+.ex-actions{ display:flex; align-items:baseline; gap:var(--s3); flex-wrap:wrap; }
+.ex-actions a{ font-size:.88rem; font-weight:500; padding:var(--s1) 0; }
 
 .overlay{
-  position:fixed;
-  top:0; bottom:0;
-  left:50%;
-  transform: translateX(-50%);
-  width:100%;
-  max-width: 460px;
-  background: rgba(10,10,11,0.92);
+  position:fixed; inset:0; z-index:100; background:var(--bg);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  z-index: 100;
-  opacity:0; pointer-events:none;
-  transition: opacity 0.25s ease;
+  opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease; padding:var(--s3);
+  text-align:center;
 }
-.overlay.show{ opacity:1; pointer-events:all;}
-.timer-ex-name{ font-size:13px; color:var(--text-dim); margin-bottom:6px; letter-spacing:0.04em;}
-.timer-num{ font-family:'Bebas Neue'; font-size:100px; color: var(--accent-gold); line-height:1;}
-.timer-sub{ font-size:12px; color:var(--text-faint); margin-top:10px;}
-.timer-skip{
-  margin-top: 30px;
-  padding: 12px 28px;
-  border-radius: 24px;
-  border: 1px solid var(--line);
-  background: var(--bg-card);
-  color: var(--text);
-  font-size: 13px;
-  font-weight:700;
-}
+.overlay.show{ opacity:1; visibility:visible; }
+.timer-name{ font-size:.85rem; color:var(--ink-faint); margin-bottom:var(--s1); }
+.timer-num{ font-family:var(--font-head); font-size:6.5rem; line-height:1.1; color:var(--accent); font-variant-numeric:tabular-nums; }
+.timer-sub{ font-size:.78rem; color:var(--ink-faint); margin:var(--s1) 0 var(--s4); }
 
-.modal-overlay{
-  position:fixed;
-  top:0; bottom:0;
-  left:50%;
-  transform: translateX(-50%);
-  width:100%;
-  max-width: 460px;
-  background: rgba(10,10,11,0.85);
-  display:flex; align-items:flex-end; justify-content:center;
-  z-index: 100;
-  opacity:0; pointer-events:none;
-  transition: opacity 0.25s ease;
+.modal{
+  position:fixed; inset:0; z-index:100; background:var(--bg); overflow-y:auto;
+  padding:var(--s4) max(var(--s2), env(safe-area-inset-right, 0px)) var(--s8) max(var(--s2), env(safe-area-inset-left, 0px));
+  padding-top:max(var(--s4), calc(env(safe-area-inset-top, 0px) + var(--s2)));
+  opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease;
 }
-.modal-overlay.show{ opacity:1; pointer-events:all;}
-.modal-sheet{
-  width:100%;
-  max-width: 460px;
-  background: var(--bg-card);
-  border-radius: 20px 20px 0 0;
-  padding: 22px 20px 30px;
-  max-height: 78vh;
-  overflow-y:auto;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-}
-.modal-overlay.show .modal-sheet{ transform: translateY(0);}
-.modal-title{ font-size:16px; font-weight:900; margin-bottom:14px;}
-.modal-item{ margin-bottom:12px; font-size:12.5px; line-height:1.7; color: var(--text-dim);}
-.modal-item b{ color: var(--text); display:block; margin-bottom:2px; font-size:13px;}
-.modal-close{
-  margin-top: 10px;
-  width:100%;
-  padding: 12px 0;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: var(--bg-card-elevated);
-  color: var(--text);
-  font-size: 13px;
-  font-weight:700;
-}
+.modal.show{ opacity:1; visibility:visible; }
+.modal .bar{ display:flex; justify-content:space-between; align-items:baseline; }
+.modal h2{ margin:0 0 var(--s3); border-bottom:none; flex:1; }
+.modal .close{ border:none; border-bottom:1px solid var(--hairline); padding:var(--s1) 0; font-weight:500; color:inherit; }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="app-header">
-  <div class="eyebrow">TRAINING REFERENCE</div>
-  <div class="title">逆三角形メイキング</div>
-  <div class="title-sub">記録は別アプリで管理。ここでは「今日は何をやるか」だけ確認します。</div>
+  <header>
+    <span class="tag">TRAINING REFERENCE</span>
+    <h1>逆三角形メイキング</h1>
+    <p class="meta">記録は別アプリで管理。ここでは「今日は何をやるか」だけ確認します。</p>
+    <div class="head-links">
+      <button type="button" id="infoBtn">用語ガイド</button>
+      <a id="chatBtn" href="https://claude.ai/chat/1dd7360e-bf86-4cc4-9ed9-ae2f1a9d3412">Claudeに相談</a>
+    </div>
+  </header>
+
+  <nav class="daybar" id="dayTabs" aria-label="曜日"></nav>
+
+  <h2 id="dayName">-</h2>
+  <p class="meta" id="daySub">-</p>
+
+  <section class="warmup">
+    <span class="label-head">ウォームアップ</span>
+    <p>肩甲骨回し10回×2方向 → 最初の種目を無負荷〜軽負荷で1セット(15回)してから本セット開始</p>
+  </section>
+
+  <div id="exList"></div>
+
+  <div data-theme-switch data-theme-key="hometore-theme"></div>
 </div>
 
-<div class="day-tabs" id="dayTabs"></div>
-
-<div class="day-info" id="dayInfoBox">
-  <div class="day-info-text">
-    <div class="dname" id="dayName">-</div>
-    <div class="dsub" id="daySub">-</div>
-  </div>
-  <div class="info-btn" id="infoBtn">i</div>
-  <a class="info-btn" id="chatBtn" href="https://claude.ai/chat/1dd7360e-bf86-4cc4-9ed9-ae2f1a9d3412" title="Claudeに相談する">💬</a>
-</div>
-
-<div class="warmup-note" id="warmupNote">
-  <b>ウォームアップ:</b> 肩甲骨回し10回×2方向 → 最初の種目を無負荷〜軽負荷で1セット(15回)してから本セット開始
-</div>
-
-<div class="ex-list" id="exList"></div>
-
-<!-- REST TIMER OVERLAY -->
+<!-- レストタイマー -->
 <div class="overlay" id="timerOverlay">
-  <div class="timer-ex-name" id="timerExName">REST</div>
-  <div class="timer-num num" id="timerNum">90</div>
-  <div class="timer-sub">タップでスキップ</div>
-  <div class="timer-skip" id="timerSkipBtn">スキップ</div>
+  <div class="timer-name" id="timerExName">REST</div>
+  <div class="timer-num" id="timerNum">90</div>
+  <div class="timer-sub">画面のどこでもタップでスキップ</div>
+  <button type="button" id="timerSkipBtn">スキップ</button>
 </div>
 
-<!-- INFO MODAL -->
-<div class="modal-overlay" id="infoModal">
-  <div class="modal-sheet">
-    <div class="modal-title">用語ガイド</div>
-    <div class="modal-item"><b>RIR（Reps in Reserve）</b>あと何回できる余力を残してセットを終えるか。RIR 1 = あと1回できる強度で止める。RIR 0 = 完全に限界まで。</div>
-    <div class="modal-item"><b>テンポ（例: 3010）</b>4桁でおろす秒数・下位置で止める秒数・上げる秒数・上位置で止める秒数を表す。「3010」＝3秒でおろす→止めない→1秒で上げる→止めない。</div>
-    <div class="modal-item"><b>マイオレップ</b>通常セット後に15秒だけ休み、限界まで5回程度を追加で数セット行うテクニック。軽い重量の種目に効果的。</div>
-    <div class="modal-item"><b>負荷の足し方（DBが10kgまでのとき）</b>順番に試す。①規定回数の上限まで全セットできたら、②下ろす動きを4秒にする、③リュックに重さを入れて背負う、④レスト時間を15秒短くする。セットは限界の2〜3回手前で止める（最後だけ0〜1回手前）。</div>
-    <div class="modal-item"><b>4週ごとの見直し</b>4週間に1回、週平均体重・腹囲・胸の写真・主要種目の回数と重さを確認する。4週で体重が1.2〜2.0kg減り、回数と重さが落ちていなければそのまま続ける。減りが1.2kg未満なら食事を1日100〜200kcal減らすか歩数を足す。2.0kgを超えて減る、または回数や重さが落ちるなら、食事を1日100〜200kcal増やす。体脂肪率15%前後に近づいたら、減量を止めて維持か増量に切り替えるかを判断する。体重は毎日同じ条件（朝、トイレ後）で測り、週平均で見る。</div>
-    <div class="modal-item"><b>ユニラテラル種目</b>片手・片脚で行う種目。左右別に効かせられるため、軽いダンベルでも負荷を高めやすい。</div>
-    <div class="modal-item"><b>週のスケジュール</b>月・火・木・金・日がトレーニング日、水・土が休養日（胸特化の翌日にすぐ肩特化が来ないよう、間に休養日を挟む配置にしています）。</div>
-    <div class="modal-item"><b>▶ ボタン</b>その種目のフォーム解説動画をYouTubeで検索して開く。</div>
-    <div class="modal-item"><b>⏱ レスト開始</b>その種目のセット間レストのタイマーを起動する。</div>
-    <div class="modal-item"><b>💬 Claudeに相談</b>メニューの疑問・種目の相談をしたい時にタップすると、このアプリを一緒に作っているClaudeとの会話がそのまま開く。</div>
-    <div class="modal-close" id="modalCloseBtn">閉じる</div>
+<!-- 用語ガイド -->
+<div class="modal" id="infoModal">
+  <div class="wrap">
+    <div class="bar">
+      <h2>用語ガイド</h2>
+      <button type="button" class="close" id="modalCloseTop">閉じる</button>
+    </div>
+    <dl>
+      <dt>RIR（Reps in Reserve）</dt>
+      <dd>あと何回できる余力を残してセットを終えるか。RIR 1 = あと1回できる強度で止める。RIR 0 = 完全に限界まで。</dd>
+      <dt>テンポ（例: 3010）</dt>
+      <dd>4桁でおろす秒数・下位置で止める秒数・上げる秒数・上位置で止める秒数を表す。「3010」＝3秒でおろす→止めない→1秒で上げる→止めない。</dd>
+      <dt>マイオレップ</dt>
+      <dd>通常セット後に15秒だけ休み、限界まで5回程度を追加で数セット行うテクニック。軽い重量の種目に効果的。</dd>
+      <dt>負荷の足し方（DBが10kgまでのとき）</dt>
+      <dd>順番に試す。①規定回数の上限まで全セットできたら、②下ろす動きを4秒にする、③リュックに重さを入れて背負う、④レスト時間を15秒短くする。セットは限界の2〜3回手前で止める（最後だけ0〜1回手前）。</dd>
+      <dt>4週ごとの見直し</dt>
+      <dd>4週間に1回、週平均体重・腹囲・胸の写真・主要種目の回数と重さを確認する。4週で体重が1.2〜2.0kg減り、回数と重さが落ちていなければそのまま続ける。減りが1.2kg未満なら食事を1日100〜200kcal減らすか歩数を足す。2.0kgを超えて減る、または回数や重さが落ちるなら、食事を1日100〜200kcal増やす。体脂肪率15%前後に近づいたら、減量を止めて維持か増量に切り替えるかを判断する。体重は毎日同じ条件（朝、トイレ後）で測り、週平均で見る。</dd>
+      <dt>ユニラテラル種目</dt>
+      <dd>片手・片脚で行う種目。左右別に効かせられるため、軽いダンベルでも負荷を高めやすい。</dd>
+      <dt>週のスケジュール</dt>
+      <dd>月・火・木・金・日がトレーニング日、水・土が休養日（胸特化の翌日にすぐ肩特化が来ないよう、間に休養日を挟む配置にしています）。</dd>
+      <dt>▶ ボタン</dt>
+      <dd>その種目のフォーム解説動画をYouTubeで検索して開く。</dd>
+      <dt>⏱ レスト開始</dt>
+      <dd>その種目のセット間レストのタイマーを起動する。</dd>
+      <dt>💬 Claudeに相談</dt>
+      <dd>メニューの疑問・種目の相談をしたい時にタップすると、このアプリを一緒に作っているClaudeとの会話がそのまま開く。</dd>
+    </dl>
+    <button type="button" id="modalCloseBtn">閉じる</button>
   </div>
 </div>
+
+<script>
+/* ===== book theme（明るい／暗いの切り替え） ===== */
+(function () {
+  var root = document.documentElement;
+  var mount = document.querySelector('[data-theme-switch]');
+  var KEY = (mount && mount.getAttribute('data-theme-key')) || 'book-theme';
+  function read() {
+    try { var v = localStorage.getItem(KEY); return v === 'light' || v === 'dark' ? v : 'auto'; }
+    catch (e) { return 'auto'; }
+  }
+  function save(mode) {
+    try { if (mode === 'auto') localStorage.removeItem(KEY); else localStorage.setItem(KEY, mode); }
+    catch (e) {}
+  }
+  function paintBar(mode) {
+    var light = document.querySelector('meta[name="theme-color"][media*="light"]');
+    var dark = document.querySelector('meta[name="theme-color"][media*="dark"]');
+    if (!light || !dark) return;
+    if (!paintBar.saved) paintBar.saved = [light.content, dark.content];
+    var fixed = mode === 'light' ? paintBar.saved[0] : mode === 'dark' ? paintBar.saved[1] : null;
+    light.content = fixed || paintBar.saved[0];
+    dark.content = fixed || paintBar.saved[1];
+  }
+  function apply(mode) {
+    if (mode === 'light' || mode === 'dark') root.setAttribute('data-theme', mode);
+    else root.removeAttribute('data-theme');
+    paintBar(mode);
+  }
+  var current = read();
+  apply(current);
+  function build() {
+    mount = mount || document.querySelector('[data-theme-switch]');
+    if (!mount || mount.dataset.themeBuilt) return;
+    mount.dataset.themeBuilt = '1';
+    var labels = ['明るい','暗い','端末に合わせる'];
+    mount.className = (mount.className ? mount.className + ' ' : '') + 'theme-switch';
+    mount.setAttribute('role', 'group');
+    mount.setAttribute('aria-label', '画面の明るさ');
+    var span = document.createElement('span');
+    span.className = 'theme-switch__label';
+    span.textContent = '表示';
+    mount.appendChild(span);
+    var modes = ['light', 'dark', 'auto'];
+    var btns = [];
+    modes.forEach(function (mode, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = labels[i];
+      b.setAttribute('data-set', mode);
+      b.setAttribute('aria-pressed', String(mode === current));
+      b.addEventListener('click', function () {
+        current = mode; apply(current); save(current);
+        btns.forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-set') === current)); });
+      });
+      btns.push(b); mount.appendChild(b);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { apply(current); build(); });
+  } else { build(); }
+  window.addEventListener('load', function () { apply(current); build(); });
+})();
+</script>
 
 <script>
 (function(){
 
 const MUSCLE = {
-  chest:   { label:'胸',  color:'var(--chest)' },
-  shoulder:{ label:'肩',  color:'var(--shoulder)' },
-  back:    { label:'背中', color:'var(--back)' },
-  arms:    { label:'腕',  color:'var(--arms)' },
-  legs:    { label:'脚/尻', color:'var(--legs)' },
-  abs:     { label:'腹筋', color:'var(--abs)' },
+  chest:   { label:'胸' },
+  shoulder:{ label:'肩' },
+  back:    { label:'背中' },
+  arms:    { label:'腕' },
+  legs:    { label:'脚/尻' },
+  abs:     { label:'腹筋' },
 };
 
 const PROGRAM = {
@@ -381,11 +333,11 @@ const PROGRAM = {
   thu: {
     dow:'木', label:'Pull B', part:'背中・僧帽筋・二頭',
     exercises: [
-      { id:'thu1', name:'ワンハンドDBロー', muscle:'back', sets:4, reps:'10-15', rir:'1-2', tempo:'2011', rest:90, yt:'ダンベル ワンハンドロー フォーム' },
+      { id:'thu1', name:'ワンハンドDBロー', muscle:'back', sets:4, reps:'10-15', rir:'1-2', tempo:'2011', rest:90, yt:'ダンベル ワンハンドロー フォーム', note:'肘を体の横に沿わせたまま、腰の方向へ引く。肘を外へ開くと背中より腕に効きやすい。' },
       { id:'thu2', name:'チェストサポーテッドロー', muscle:'back', sets:3, reps:'12-15', rir:'1-2', tempo:'2011', rest:75, yt:'チェストサポーテッドロー ダンベル フォーム' },
       { id:'thu4', name:'リアデルトフライ', muscle:'shoulder', sets:4, reps:'15-20', rir:'0-1', tempo:'通常', rest:45, yt:'リアデルトフライ ダンベル フォーム' },
       { id:'thu5', name:'DBシュラッグ', muscle:'back', sets:3, reps:'12-15', rir:'1', tempo:'通常', rest:60, yt:'ダンベルシュラッグ フォーム' },
-      { id:'thu3', name:'DBプルオーバー（補助）', muscle:'back', sets:2, reps:'12-15', rir:'1-2', tempo:'3010', rest:60, yt:'ダンベルプルオーバー フォーム' },
+      { id:'thu3', name:'DBプルオーバー（広背筋・背中の広がり）', muscle:'back', sets:4, reps:'12-15', rir:'1-2', tempo:'3010', rest:60, yt:'ダンベルプルオーバー 広背筋 フォーム', note:'ベンチに肩甲骨の下あたりを乗せ、ダンベルを両手で持つ。肘を軽く曲げたまま、頭の後ろへ下ろして背中を伸ばし、腕を振り上げずに脇の下の筋肉で引き戻す。下ろす動きは3秒。2セットから4セットに増やした種目。' },
       { id:'thu6', name:'インクラインDBカール', muscle:'arms', sets:3, reps:'10-12', rir:'1', tempo:'3010', rest:60, yt:'インクラインダンベルカール フォーム' },
       { id:'thu7', name:'ハンマーカール', muscle:'arms', sets:2, reps:'12-15', rir:'1', tempo:'通常', rest:45, yt:'ハンマーカール フォーム' },
       { id:'thu8', name:'DBリストカール（手のひら上向き）', muscle:'arms', sets:3, reps:'15-20', rir:'1', tempo:'通常', rest:30, yt:'ダンベル リストカール フォーム' },
@@ -397,7 +349,7 @@ const PROGRAM = {
     dow:'金', label:'胸特化', part:'胸',
     exercises: [
       { id:'fri1', name:'フラットDBプレス', muscle:'chest', sets:4, reps:'8-12', rir:'2', tempo:'3010', rest:90, yt:'ダンベルプレス フォーム', note:'下ろす動きを3秒かけ、胸の下側が伸びる位置まで深く下ろす。全セット上限の12回に届いたら、次回は下ろす時間を4秒にして負荷を上げる（DBが10kgまでのため）。' },
-      { id:'fri7', name:'前傾チェアディップス（荷重・大胸筋下部）', muscle:'chest', sets:4, reps:'8-12', rir:'1-2', tempo:'4010', rest:90, yt:'チェアディップス 前傾姿勢 胸 リュック 荷重', note:'胸の下部を狙う中心種目。上体を前に倒し、胸が足の方へ向かう意識で沈む。下ろす動きは4秒。リュックにペットボトルや本を入れて背負い、8〜12回の範囲で限界の2〜3回手前で止まる重さにする。12回×全セットできたら重さを足す。肩に痛みが出たら深く沈みすぎない。' },
+      { id:'fri7', key:true, name:'前傾チェアディップス（荷重・大胸筋下部）', muscle:'chest', sets:4, reps:'8-12', rir:'1-2', tempo:'4010', rest:90, yt:'チェアディップス 前傾姿勢 胸 リュック 荷重', note:'胸の下部を狙う中心種目。上体を前に倒し、胸が足の方へ向かう意識で沈む。下ろす動きは4秒。リュックにペットボトルや本を入れて背負い、8〜12回の範囲で限界の2〜3回手前で止まる重さにする。12回×全セットできたら重さを足す。肩に痛みが出たら深く沈みすぎない。' },
       { id:'fri2', name:'インクラインDBプレス（浅め15〜20度）', muscle:'chest', sets:3, reps:'10-12', rir:'1-2', tempo:'2011', rest:75, yt:'インクラインダンベルプレス 15度 フォーム' },
       { id:'fri3', name:'スヴェンドプレス', muscle:'chest', sets:3, reps:'15', rir:'1', tempo:'通常', rest:60, yt:'スヴェンドプレス フォーム' },
       { id:'fri4', name:'フラットDBフライ（ストレッチ強調）', muscle:'chest', sets:3, reps:'12-15', rir:'1', tempo:'4010', rest:60, yt:'ダンベルフライ ストレッチ フォーム' },
@@ -430,10 +382,12 @@ function renderDayTabs(){
   wrap.innerHTML = '';
   DAY_ORDER.forEach(d=>{
     const p = PROGRAM[d];
-    const tab = document.createElement('div');
-    tab.className = 'day-tab' + (state.day===d ? ' active' : '');
-    tab.innerHTML = '<div class="dow">'+p.dow+'</div><div class="part">'+p.label+'</div>';
-    tab.onclick = ()=>{ state.day = d; refresh(); };
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'daytab' + (state.day===d ? ' is-current' : '');
+    if(state.day===d) tab.setAttribute('aria-current','true');
+    tab.innerHTML = '<span class="dow">'+p.dow+'</span><span class="part">'+p.label+'</span>';
+    tab.onclick = ()=>{ state.day = d; refresh(); window.scrollTo(0,0); };
     wrap.appendChild(tab);
   });
 }
@@ -453,29 +407,28 @@ function renderExercises(){
   p.exercises.forEach((ex, idx)=>{
     const m = MUSCLE[ex.muscle];
     const ytUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.yt || ex.name + ' フォーム');
-
-    const card = document.createElement('div');
-    card.className = 'ex-card';
-    card.innerHTML = `
-      <div class="ex-head">
-        <div class="ex-order">${String(idx+1).padStart(2,'0')}</div>
-        <div class="tag-dot" style="background:${m.color}"></div>
-        <div class="ex-name">${ex.name}</div>
+    const el = document.createElement('article');
+    el.className = 'ex';
+    el.innerHTML = `
+      <div class="top">
+        <span class="tag">${String(idx+1).padStart(2,'0')} ・ ${m.label}</span>
+        ${ex.key ? '<span class="tag accent">重点</span>' : ''}
       </div>
+      <h3>${ex.name}</h3>
       <div class="ex-meta">
-        <div class="meta-item"><span class="num">${ex.sets}</span><span class="lbl">セット</span></div>
-        <div class="meta-item"><span class="num">${ex.reps}</span><span class="lbl">回</span></div>
-        <div class="meta-item"><span class="num">${ex.rir}</span><span class="lbl">RIR</span></div>
-        <div class="meta-item"><span class="num">${ex.tempo}</span><span class="lbl">テンポ</span></div>
-        <div class="meta-item"><span class="num">${ex.rest}s</span><span class="lbl">レスト</span></div>
+        <span class="it"><span class="mv">${ex.sets}</span><span class="ml">セット</span></span>
+        <span class="it"><span class="mv">${ex.reps}</span><span class="ml">回</span></span>
+        <span class="it"><span class="mv">${ex.rir}</span><span class="ml">RIR</span></span>
+        <span class="it"><span class="mv">${ex.tempo}</span><span class="ml">テンポ</span></span>
+        <span class="it"><span class="mv">${ex.rest}s</span><span class="ml">レスト</span></span>
       </div>
-      ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
-      <div class="ex-foot">
-        <a class="yt-btn" href="${ytUrl}">▶</a>
-        <button class="rest-btn" data-rest="${ex.rest}" data-name="${ex.name}">⏱ レスト開始（${ex.rest}秒）</button>
+      ${ex.note ? `<p class="ex-note"><span class="label-head">ポイント</span>${ex.note}</p>` : ''}
+      <div class="ex-actions">
+        <a href="${ytUrl}">▶ フォーム動画</a>
+        <button type="button" class="rest-btn" data-rest="${ex.rest}" data-name="${ex.name}">レスト開始 ${ex.rest}秒</button>
       </div>
     `;
-    wrap.appendChild(card);
+    wrap.appendChild(el);
   });
 
   wrap.querySelectorAll('.rest-btn').forEach(btn=>{
@@ -487,7 +440,7 @@ function startRestTimer(seconds, name){
   clearInterval(timerInterval);
   const overlay = document.getElementById('timerOverlay');
   const numEl = document.getElementById('timerNum');
-  document.getElementById('timerExName').textContent = name.toUpperCase();
+  document.getElementById('timerExName').textContent = name;
   let remaining = seconds;
   numEl.textContent = remaining;
   overlay.classList.add('show');
@@ -510,18 +463,16 @@ function closeTimer(){
   document.getElementById('timerOverlay').classList.remove('show');
 }
 
+const modal = document.getElementById('infoModal');
+function openModal(){ modal.classList.add('show'); modal.scrollTop = 0; }
+function closeModal(){ modal.classList.remove('show'); }
+
 document.getElementById('timerOverlay').addEventListener('click', closeTimer);
 document.getElementById('timerSkipBtn').addEventListener('click', (e)=>{ e.stopPropagation(); closeTimer(); });
-
-document.getElementById('infoBtn').addEventListener('click', ()=>{
-  document.getElementById('infoModal').classList.add('show');
-});
-document.getElementById('modalCloseBtn').addEventListener('click', ()=>{
-  document.getElementById('infoModal').classList.remove('show');
-});
-document.getElementById('infoModal').addEventListener('click', (e)=>{
-  if(e.target.id === 'infoModal') document.getElementById('infoModal').classList.remove('show');
-});
+document.getElementById('infoBtn').addEventListener('click', openModal);
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+document.getElementById('modalCloseTop').addEventListener('click', closeModal);
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); closeTimer(); } });
 
 function refresh(){
   renderDayTabs();
