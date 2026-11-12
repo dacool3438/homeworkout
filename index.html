@@ -83,7 +83,7 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
 .accent{ color:var(--accent); }
 .is-current{ border-bottom:2px solid var(--accent); }
 
-.theme-switch{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 var(--s2); margin:var(--s2) 0; }
+.theme-switch{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 var(--s2); margin:var(--s1) 0 0; }
 .theme-switch__label{ font-size:.72rem; letter-spacing:.14em; color:var(--ink-faint); margin-right:var(--s1); }
 .theme-switch button{
   appearance:none; -webkit-appearance:none; background:none; border:none; border-radius:0; margin:0;
@@ -170,6 +170,7 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
       <button type="button" id="infoBtn">用語ガイド</button>
       <a id="chatBtn" href="https://claude.ai/chat/1dd7360e-bf86-4cc4-9ed9-ae2f1a9d3412">Claudeに相談</a>
     </div>
+    <div data-theme-switch data-theme-key="hometore-theme"></div>
   </header>
 
   <nav class="daybar" id="dayTabs" aria-label="曜日"></nav>
@@ -183,8 +184,6 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
   </section>
 
   <div id="exList"></div>
-
-  <div data-theme-switch data-theme-key="hometore-theme"></div>
 </div>
 
 <!-- レストタイマー -->
