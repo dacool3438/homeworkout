@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-12-3">
+<meta name="app-version" content="2026-11-15-1">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング - トレーニング参照</title>
@@ -158,6 +158,39 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
 .modal .bar{ display:flex; justify-content:space-between; align-items:baseline; }
 .modal h2{ margin:0 0 var(--s3); border-bottom:none; flex:1; }
 .modal .close{ border:none; border-bottom:1px solid var(--hairline); padding:var(--s1) 0; font-weight:500; color:inherit; }
+
+/* ===== 記録 ===== */
+.logdate{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 var(--s2); margin:var(--s2) 0 0; }
+.logdate label{ font-size:.78rem; letter-spacing:.08em; color:var(--ink-faint); }
+.logdate input{
+  font:inherit; font-size:1rem; color:var(--ink); background:none;
+  border:0; border-bottom:1px solid var(--hairline); border-radius:0;
+  padding:var(--s1) 0; width:auto; min-width:9.5rem;
+}
+.logdate input:focus{ outline:none; border-bottom-color:var(--accent); }
+
+.sets{ margin:0 0 var(--s2); }
+.prev{ font-size:.78rem; color:var(--ink-faint); margin:0 0 var(--s1); line-height:1.7; }
+.setrow{ display:flex; align-items:baseline; gap:var(--s1); margin-bottom:var(--s1); }
+.setrow .sn{ width:1.5rem; color:var(--ink-faint); font-size:.8rem; font-variant-numeric:tabular-nums; }
+.setrow input{
+  width:4.5rem; font:inherit; font-size:1rem; color:var(--ink); background:none;
+  border:0; border-bottom:1px solid var(--hairline); border-radius:0;
+  padding:var(--s1) 0; text-align:right; font-variant-numeric:tabular-nums;
+}
+.setrow input:focus{ outline:none; border-bottom-color:var(--accent); }
+.setrow input::placeholder{ color:var(--ink-faint); opacity:.55; }
+.setrow .u{ font-size:.72rem; color:var(--ink-faint); letter-spacing:.04em; }
+.setrow .x{ color:var(--ink-faint); padding:0 var(--s1); }
+
+.logtools{ border-top:1px solid var(--hairline); padding-top:var(--s2); margin:var(--s4) 0 var(--s3); }
+.logtools-row{ display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s3); margin:var(--s2) 0; }
+.logtools-row.sub{ margin-top:var(--s1); }
+.textbtn{
+  border:none; padding:var(--s1) 0; border-bottom:1px solid var(--hairline);
+  font-weight:500; font-size:.85rem; color:inherit; line-height:1.9;
+}
+.textbtn:hover{ border-color:var(--accent); }
 </style>
 </head>
 <body>
@@ -166,7 +199,7 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
   <header>
     <span class="tag">TRAINING REFERENCE</span>
     <h1>逆三角形メイキング</h1>
-    <p class="meta">記録は別アプリで管理。ここでは「今日は何をやるか」だけ確認します。</p>
+    <p class="meta">今日の種目を確認し、重さと回数を記録します。</p>
     <div class="head-links">
       <button type="button" id="infoBtn">用語ガイド</button>
       <a id="chatBtn" href="https://claude.ai/chat/1dd7360e-bf86-4cc4-9ed9-ae2f1a9d3412">Claudeに相談</a>
@@ -179,12 +212,31 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
   <h2 id="dayName">-</h2>
   <p class="meta" id="daySub">-</p>
 
+  <div class="logdate">
+    <label for="logDate">記録する日</label>
+    <input type="date" id="logDate">
+    <span class="meta" id="logDateText"></span>
+  </div>
+
   <section class="warmup">
     <span class="label-head">ウォームアップ</span>
     <p>肩甲骨回し10回×2方向 → 最初の種目を無負荷〜軽負荷で1セット(15回)してから本セット開始</p>
   </section>
 
   <div id="exList"></div>
+
+  <section class="logtools">
+    <span class="label-head">この日の記録</span>
+    <p class="meta">重さと回数は、入力するとこのiPhone内に自動で保存されます。カレンダーには、その日の要約だけが入ります。</p>
+    <div class="logtools-row">
+      <button type="button" id="calBtn">Googleカレンダーに記録する</button>
+    </div>
+    <p class="meta" id="logNote" role="status"></p>
+    <div class="logtools-row sub">
+      <button type="button" class="textbtn" id="exportBtn">記録を書き出す（コピー）</button>
+      <button type="button" class="textbtn" id="importBtn">記録を読み込む</button>
+    </div>
+  </section>
 </div>
 
 <!-- レストタイマー -->
@@ -213,6 +265,12 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
       <dd>順番に試す。①規定回数の上限まで全セットできたら、②下ろす動きを4秒にする、③リュックに重さを入れて背負う、④レスト時間を15秒短くする。セットは限界の2〜3回手前で止める（最後だけ0〜1回手前）。</dd>
       <dt>4週ごとの見直し</dt>
       <dd>4週間に1回、週平均体重・腹囲・胸の写真・主要種目の回数と重さを確認する。4週で体重が1.2〜2.0kg減り、回数と重さが落ちていなければそのまま続ける。減りが1.2kg未満なら食事を1日100〜200kcal減らすか歩数を足す。2.0kgを超えて減る、または回数や重さが落ちるなら、食事を1日100〜200kcal増やす。体脂肪率15%前後に近づいたら、減量を止めて維持か増量に切り替えるかを判断する。体重は毎日同じ条件（朝、トイレ後）で測り、週平均で見る。</dd>
+      <dt>記録のしかた</dt>
+      <dd>各種目の「1」「2」…の行に、重さ(kg)と回数を入力する。入力した値は、このiPhone内に自動で保存される。自重の種目は、重さを空欄にする。プランクなど秒数の種目は、「秒」の欄に秒数を入れる。種目の下の「前回」は、同じ種目の直近の記録で、入力欄の薄い数字も前回の値。</dd>
+      <dt>記録の保存場所と注意</dt>
+      <dd>重さと回数は、このiPhoneのブラウザ内にだけ保存される。ホーム画面のアイコンを作り直したり、サイトのデータを消したりすると、記録も消える。それに備えて、ページ下の「記録を書き出す」で、定期的にコピーして、メモアプリなどに貼って保管する。</dd>
+      <dt>Googleカレンダーに記録する</dt>
+      <dd>ページ下のボタンを押すと、Googleカレンダーの予定の作成画面が、その日の種目と重さ・回数の要約つきで開く。保存を押すと、終日の予定として残る。カレンダーから、アプリに記録は戻らない。</dd>
       <dt>ユニラテラル種目</dt>
       <dd>片手・片脚で行う種目。左右別に効かせられるため、軽いダンベルでも負荷を高めやすい。</dd>
       <dt>週のスケジュール</dt>
@@ -374,7 +432,86 @@ const PROGRAM = {
 
 const DAY_ORDER = ['mon','tue','thu','fri','sat'];
 
-let state = { day: 'mon' };
+function pad2(n){ return String(n).padStart(2,'0'); }
+function dateStr(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+const DOW_JA = ['日','月','火','水','木','金','土'];
+function parseDate(str){ const a = str.split('-'); return new Date(+a[0], +a[1]-1, +a[2]); }
+function shortDate(str){ const d = parseDate(str); return (d.getMonth()+1) + '/' + d.getDate() + '（' + DOW_JA[d.getDay()] + '）'; }
+
+let state = { day: 'mon', date: dateStr(new Date()) };
+
+/* ===== 記録（このiPhone内のlocalStorageに保存） ===== */
+const LOG_KEY = 'hometore-log-v1';
+function loadLog(){
+  try{
+    const o = JSON.parse(localStorage.getItem(LOG_KEY) || '{}');
+    return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {};
+  }catch(e){ return {}; }
+}
+let log = loadLog();
+function saveLog(){
+  try{ localStorage.setItem(LOG_KEY, JSON.stringify(log)); return true; }
+  catch(e){ setNote('保存できませんでした。この端末では記録を保存できない設定の可能性があります。'); return false; }
+}
+function setNote(text){ const el = document.getElementById('logNote'); if(el) el.textContent = text; }
+
+function repUnit(ex){ return /秒/.test(String(ex.reps)) ? '秒' : '回'; }
+function hasValue(s){ return s && (String(s.w||'').trim() !== '' || String(s.r||'').trim() !== ''); }
+
+function setValue(exId, idx, field, val){
+  const day = log[state.date] = log[state.date] || {};
+  const arr = day[exId] = day[exId] || [];
+  while(arr.length <= idx) arr.push({ w:'', r:'' });
+  arr[idx][field] = val.trim();
+  if(!arr.some(hasValue)) delete day[exId];
+  if(Object.keys(day).length === 0) delete log[state.date];
+  saveLog();
+}
+
+function prevOf(exId){
+  const dates = Object.keys(log)
+    .filter(d => d < state.date && Array.isArray(log[d][exId]) && log[d][exId].some(hasValue))
+    .sort();
+  if(!dates.length) return null;
+  const d = dates[dates.length - 1];
+  return { date:d, sets:log[d][exId] };
+}
+
+function fmtSet(set, ex){
+  if(!hasValue(set)) return null;
+  const w = String(set.w||'').trim(), r = String(set.r||'').trim();
+  const u = repUnit(ex);
+  if(w && r) return w + 'kg×' + r + u;
+  if(w) return w + 'kg';
+  return r + u;
+}
+
+function setsHtml(ex){
+  const cur = (log[state.date] && log[state.date][ex.id]) || [];
+  const prev = prevOf(ex.id);
+  const u = repUnit(ex);
+  let h = '<div class="sets">';
+  if(prev){
+    const t = prev.sets.map(x => fmtSet(x, ex)).filter(Boolean).join(' ／ ');
+    h += '<p class="prev">前回（' + shortDate(prev.date) + '）：' + t + '</p>';
+  }else{
+    h += '<p class="prev">前回の記録はありません</p>';
+  }
+  for(let i = 0; i < ex.sets; i++){
+    const c = cur[i] || {};
+    const pv = (prev && prev.sets[i]) || {};
+    h += '<div class="setrow">'
+      + '<span class="sn">' + (i+1) + '</span>'
+      + '<input type="text" inputmode="decimal" autocomplete="off" data-ex="' + ex.id + '" data-i="' + i + '" data-f="w"'
+      +   ' placeholder="' + (pv.w || '') + '" value="' + (c.w || '') + '" aria-label="' + (i+1) + 'セット目の重さ(kg)">'
+      + '<span class="u">kg</span><span class="x">×</span>'
+      + '<input type="text" inputmode="decimal" autocomplete="off" data-ex="' + ex.id + '" data-i="' + i + '" data-f="r"'
+      +   ' placeholder="' + (pv.r || '') + '" value="' + (c.r || '') + '" aria-label="' + (i+1) + 'セット目の' + u + '数">'
+      + '<span class="u">' + u + '</span>'
+      + '</div>';
+  }
+  return h + '</div>';
+}
 let timerInterval = null;
 
 function renderDayTabs(){
@@ -423,6 +560,7 @@ function renderExercises(){
         <span class="it"><span class="mv">${ex.rest}s</span><span class="ml">レスト</span></span>
       </div>
       ${ex.note ? `<p class="ex-note"><span class="label-head">ポイント</span>${ex.note}</p>` : ''}
+      ${setsHtml(ex)}
       <div class="ex-actions">
         <a href="${ytUrl}">▶ フォーム動画</a>
         <button type="button" class="rest-btn" data-rest="${ex.rest}" data-name="${ex.name}">レスト開始 ${ex.rest}秒</button>
@@ -433,6 +571,12 @@ function renderExercises(){
 
   wrap.querySelectorAll('.rest-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> startRestTimer(parseInt(btn.dataset.rest,10), btn.dataset.name));
+  });
+  wrap.querySelectorAll('.setrow input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      setValue(inp.dataset.ex, parseInt(inp.dataset.i,10), inp.dataset.f, inp.value);
+      setNote('');
+    });
   });
 }
 
@@ -474,9 +618,74 @@ document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
 document.getElementById('modalCloseTop').addEventListener('click', closeModal);
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); closeTimer(); } });
 
+/* ===== 記録する日 ===== */
+const dateInput = document.getElementById('logDate');
+function renderDate(){
+  dateInput.value = state.date;
+  document.getElementById('logDateText').textContent = shortDate(state.date);
+}
+dateInput.addEventListener('change', ()=>{
+  if(/^\d{4}-\d{2}-\d{2}$/.test(dateInput.value)){ state.date = dateInput.value; }
+  setNote('');
+  refresh();
+});
+
+/* ===== Googleカレンダーへ ===== */
+function shortName(name){ return name.replace(/（[^）]*）/g, ''); }
+function nextDay(str){ const d = parseDate(str); d.setDate(d.getDate() + 1); return dateStr(d); }
+
+function buildCalendarUrl(){
+  const p = PROGRAM[state.day];
+  const day = log[state.date] || {};
+  const lines = [];
+  p.exercises.forEach(ex=>{
+    const sets = day[ex.id];
+    if(!Array.isArray(sets)) return;
+    const parts = sets.map(x => fmtSet(x, ex)).filter(Boolean);
+    if(parts.length) lines.push(shortName(ex.name) + '：' + parts.join('、'));
+  });
+  if(!lines.length) return null;
+  const title = '筋トレ ' + p.label + '（' + p.part + '）';
+  const dates = state.date.replace(/-/g,'') + '/' + nextDay(state.date).replace(/-/g,'');
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    + '&text=' + encodeURIComponent(title)
+    + '&details=' + encodeURIComponent(lines.join('\n'))
+    + '&dates=' + dates;
+}
+document.getElementById('calBtn').addEventListener('click', ()=>{
+  const url = buildCalendarUrl();
+  if(!url){ setNote('この曜日の種目に、' + shortDate(state.date) + 'の記録がありません。曜日のタブと記録する日を確認してください。'); return; }
+  window.location.href = url;
+});
+
+/* ===== バックアップ ===== */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const json = JSON.stringify(log);
+  if(json === '{}'){ setNote('書き出す記録がありません。'); return; }
+  const done = ()=> setNote('コピーしました。メモアプリなどに貼って保管してください。');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(json).then(done).catch(()=>{ window.prompt('全体を選んでコピーし、保管してください', json); });
+  }else{
+    window.prompt('全体を選んでコピーし、保管してください', json);
+  }
+});
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  const t = window.prompt('書き出した記録を貼り付けてください（同じ日付の記録は上書きされます）');
+  if(!t) return;
+  try{
+    const o = JSON.parse(t);
+    if(!o || typeof o !== 'object' || Array.isArray(o)) throw new Error('bad');
+    Object.keys(o).forEach(d=>{ if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error('bad'); });
+    log = Object.assign({}, log, o);
+    if(saveLog()) setNote('読み込みました。');
+    refresh();
+  }catch(e){ setNote('読み込めませんでした。書き出した文字全体を貼り付けてください。'); }
+});
+
 function refresh(){
   renderDayTabs();
   renderDayInfo();
+  renderDate();
   renderExercises();
 }
 
