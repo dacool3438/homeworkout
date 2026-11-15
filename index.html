@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-15-1">
+<meta name="app-version" content="2026-11-15-2">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング - トレーニング参照</title>
@@ -235,6 +235,7 @@ button:hover{ color:var(--accent); border-color:var(--accent); }
     <div class="logtools-row sub">
       <button type="button" class="textbtn" id="exportBtn">記録を書き出す（コピー）</button>
       <button type="button" class="textbtn" id="importBtn">記録を読み込む</button>
+      <button type="button" class="textbtn" id="syncBtn">カレンダー連携の設定</button>
     </div>
   </section>
 </div>
@@ -634,7 +635,7 @@ dateInput.addEventListener('change', ()=>{
 function shortName(name){ return name.replace(/（[^）]*）/g, ''); }
 function nextDay(str){ const d = parseDate(str); d.setDate(d.getDate() + 1); return dateStr(d); }
 
-function buildCalendarUrl(){
+function buildCalendarParts(){
   const p = PROGRAM[state.day];
   const day = log[state.date] || {};
   const lines = [];
@@ -645,17 +646,73 @@ function buildCalendarUrl(){
     if(parts.length) lines.push(shortName(ex.name) + '：' + parts.join('、'));
   });
   if(!lines.length) return null;
-  const title = '筋トレ ' + p.label + '（' + p.part + '）';
+  return { title: '筋トレ ' + p.label + '（' + p.part + '）', lines: lines };
+}
+function buildCalendarUrl(){
+  const c = buildCalendarParts();
+  if(!c) return null;
   const dates = state.date.replace(/-/g,'') + '/' + nextDay(state.date).replace(/-/g,'');
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-    + '&text=' + encodeURIComponent(title)
-    + '&details=' + encodeURIComponent(lines.join('\n'))
+    + '&text=' + encodeURIComponent(c.title)
+    + '&details=' + encodeURIComponent(c.lines.join('\n'))
     + '&dates=' + dates;
 }
+
+/* ===== カレンダー連携（Google Apps Script） ===== */
+const SYNC_KEY = 'hometore-sync-v1';
+function getSync(){
+  try{
+    const o = JSON.parse(localStorage.getItem(SYNC_KEY) || 'null');
+    return (o && o.url && o.key) ? o : null;
+  }catch(e){ return null; }
+}
+function syncRead(){
+  const sy = getSync(); if(!sy) return;
+  fetch(sy.url + '?action=read&key=' + encodeURIComponent(sy.key))
+    .then(r => r.json())
+    .then(res=>{
+      if(!res.ok){ setNote('カレンダーから読み込めませんでした（合言葉かURLを確認してください）。'); return; }
+      let n = 0;
+      Object.keys(res.log || {}).forEach(d=>{
+        if(/^\d{4}-\d{2}-\d{2}$/.test(d) && !log[d]){ log[d] = res.log[d]; n++; }
+      });
+      if(n){ saveLog(); refresh(); setNote('カレンダーから ' + n + '日分の記録を読み込みました。'); }
+    })
+    .catch(()=> setNote('カレンダーから読み込めませんでした（通信を確認してください）。'));
+}
+function syncWrite(c){
+  const sy = getSync();
+  setNote('カレンダーに登録しています…');
+  fetch(sy.url, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify({ key: sy.key, date: state.date, title: c.title, lines: c.lines.join('\n'), ex: log[state.date] || {} })
+  })
+    .then(r => r.json())
+    .then(res=>{
+      setNote(res.ok ? shortDate(state.date) + 'の記録をカレンダーに登録しました。' : '登録できませんでした（合言葉かURLを確認してください）。');
+    })
+    .catch(()=> setNote('登録できませんでした。通信を確認するか、連携を解除して下書き方式に戻してください。'));
+}
+document.getElementById('syncBtn').addEventListener('click', ()=>{
+  const cur = getSync();
+  const url = window.prompt('Apps ScriptのウェブアプリのURLを貼り付けてください。空にして決定すると連携を解除します。', cur ? cur.url : '');
+  if(url === null) return;
+  if(url.trim() === ''){
+    try{ localStorage.removeItem(SYNC_KEY); }catch(e){}
+    setNote('連携を解除しました。'); return;
+  }
+  const key = window.prompt('合言葉を入力してください', cur ? cur.key : '');
+  if(!key) return;
+  try{ localStorage.setItem(SYNC_KEY, JSON.stringify({ url:url.trim(), key:key.trim() })); }catch(e){ setNote('設定を保存できませんでした。'); return; }
+  setNote('連携を設定しました。読み込み中…');
+  syncRead();
+});
 document.getElementById('calBtn').addEventListener('click', ()=>{
-  const url = buildCalendarUrl();
-  if(!url){ setNote('この曜日の種目に、' + shortDate(state.date) + 'の記録がありません。曜日のタブと記録する日を確認してください。'); return; }
-  window.location.href = url;
+  const c = buildCalendarParts();
+  if(!c){ setNote('この曜日の種目に、' + shortDate(state.date) + 'の記録がありません。曜日のタブと記録する日を確認してください。'); return; }
+  if(getSync()){ syncWrite(c); return; }
+  window.location.href = buildCalendarUrl();
 });
 
 /* ===== バックアップ ===== */
@@ -690,6 +747,7 @@ function refresh(){
 }
 
 refresh();
+syncRead();
 
 })();
 </script>
