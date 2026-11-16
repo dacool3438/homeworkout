@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-15-2">
+<meta name="app-version" content="2026-11-16-1">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング - トレーニング参照</title>
@@ -677,6 +677,7 @@ function syncRead(){
         if(/^\d{4}-\d{2}-\d{2}$/.test(d) && !log[d]){ log[d] = res.log[d]; n++; }
       });
       if(n){ saveLog(); refresh(); setNote('カレンダーから ' + n + '日分の記録を読み込みました。'); }
+      else{ setNote('カレンダーと接続できました。新しく読み込む記録はありません。'); }
     })
     .catch(()=> setNote('カレンダーから読み込めませんでした（通信を確認してください）。'));
 }
