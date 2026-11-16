@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-3">
+<meta name="app-version" content="2026-11-16-4">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング</title>
@@ -214,6 +214,84 @@ body{ padding-bottom:calc(var(--s8) + 88px + env(safe-area-inset-bottom, 0px)); 
 .tabbar button[aria-current="page"]{ background:var(--hairline-soft); color:var(--accent); font-weight:700; }
 [hidden]{ display:none !important; }
 
+/* ===== 筋トレ画面もカード型に ===== */
+.ic{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+.ic.acc{ color:var(--accent); }
+
+.head-links{ gap:var(--s1); flex-wrap:wrap; }
+.head-links button, .head-links a{
+  border:1px solid var(--hairline-soft); background:var(--card); border-radius:999px;
+  padding:6px 18px; font-size:.85rem; font-weight:500; color:var(--ink);
+}
+.head-links button:hover, .head-links a:hover{ border-color:var(--accent); color:var(--ink); }
+.theme-switch{
+  display:inline-flex; align-items:center; gap:2px; padding:4px; margin-top:var(--s2);
+  background:var(--hairline-soft); border-radius:999px;
+}
+.theme-switch__label{ margin:0 var(--s1) 0 10px; }
+.theme-switch button{ padding:4px 14px; border-radius:999px; border-bottom:none; font-size:.8rem; }
+.theme-switch button[aria-pressed="true"]{ background:var(--card); border-bottom:none; box-shadow:0 1px 4px rgba(62,39,35,.12); }
+
+.daybar{
+  gap:6px; border-bottom:none; padding:var(--s1) 0; margin:var(--s3) 0 var(--s2);
+}
+.daytab{
+  border:1px solid var(--hairline-soft); border-radius:16px; background:var(--card);
+  padding:10px 0 8px; gap:2px; position:relative; min-width:0;
+}
+.daytab .ic{ width:20px; height:20px; }
+.daytab .dow{ font-size:1rem; line-height:1.2; }
+.daytab .part{ font-size:.6rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; padding:0 2px; }
+.daytab.is-current{ color:var(--accent); background:var(--hairline-soft); border-color:var(--hairline); border-bottom-color:var(--hairline); }
+.daytab.is-current::after{ content:""; position:absolute; left:18%; right:18%; bottom:-1px; height:3px; border-radius:2px; background:var(--accent); }
+
+.dayinfo h2, #dayName{ margin:0 0 var(--s1); padding-bottom:var(--s2); border-bottom:1px solid var(--hairline-soft); font-size:1.3rem; }
+.dirow{ display:flex; align-items:center; gap:10px; padding:10px 0; font-size:.9rem; color:var(--ink-mid); }
+.dirow + .dirow{ border-top:1px solid var(--hairline-soft); }
+.dayinfo .logdate{ margin:0; flex-wrap:wrap; gap:4px 10px; }
+.dayinfo .logdate label{ font-size:.85rem; letter-spacing:0; color:var(--ink-mid); padding-right:10px; border-right:1px solid var(--hairline); }
+.dayinfo .logdate input{ border-bottom:none; min-width:0; font-size:1.05rem; padding:0; }
+
+.card.warmup{ margin:0 0 var(--s4); padding-top:var(--s2); }
+.warmup .label-head{ display:flex; align-items:center; gap:8px; font-size:.9rem; letter-spacing:.04em; }
+
+.ex{ border-top:none; padding-top:0; margin-bottom:var(--s4); }
+.ex .top{ padding:0 var(--s1); margin-bottom:var(--s1); }
+.excard{ margin-bottom:var(--s2); }
+.excard h3{ margin:0 0 var(--s2); font-family:var(--font-body); font-size:1.1rem; }
+.ex-meta{ gap:6px; }
+.ex-meta .it{ background:var(--hairline-soft); border-radius:999px; padding:2px 12px; gap:3px; }
+.ex-meta .mv{ font-size:.9rem; }
+.ex-meta .ml{ font-size:.68rem; }
+.excard .ex-note{ background:var(--bg); border-radius:12px; padding:10px var(--s2); }
+.prev{ margin:var(--s1) 0 var(--s1); }
+.setbox{ border:1px solid var(--hairline-soft); border-radius:16px; background:var(--bg); padding:2px var(--s2); }
+.setrow{ align-items:center; gap:var(--s1); margin:0; padding:8px 0; }
+.setrow + .setrow{ border-top:1px solid var(--hairline-soft); }
+.setrow .sn{ width:1.6rem; font-size:.95rem; color:var(--ink-mid); }
+.setrow input{
+  flex:1; min-width:0; width:auto; background:var(--card); border:1px solid var(--hairline-soft);
+  border-radius:12px; padding:8px 12px; font-size:1.05rem;
+}
+.setrow input:focus{ border-color:var(--accent); }
+.setrow .x{ padding:0 2px; }
+.sets{ margin:0; }
+
+.ex-actions{ display:flex; gap:var(--s1); align-items:stretch; }
+.ex-actions .ytbtn{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+  background:var(--hairline-soft); border:none; border-radius:999px; padding:10px 0; font-size:.88rem; color:var(--ink);
+}
+.ex-actions .rest-btn{
+  flex:1.3; border:1.5px solid var(--accent); color:var(--accent); background:var(--card);
+  border-radius:999px; padding:10px 0;
+}
+.ex-actions .rest-btn:hover{ background:var(--accent); color:var(--accent-ink); }
+
+.card.logtools{ border-top:1px solid var(--hairline-soft); padding-top:var(--s3); }
+.logtools #calBtn{ border-radius:999px; }
+
+
 /* ===== カード（食事・体重） ===== */
 .card{
   background:var(--card); border:1px solid var(--hairline-soft); border-radius:20px;
@@ -336,23 +414,25 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
   <main id="viewTrain">
   <nav class="daybar" id="dayTabs" aria-label="曜日"></nav>
 
-  <h2 id="dayName">-</h2>
-  <p class="meta" id="daySub">-</p>
+  <section class="card dayinfo">
+    <h2 id="dayName">-</h2>
+    <div class="dirow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span id="daySub">-</span></div>
+    <div class="dirow logdate">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>
+      <label for="logDate">記録する日</label>
+      <input type="date" id="logDate">
+      <span class="meta" id="logDateText"></span>
+    </div>
+  </section>
 
-  <div class="logdate">
-    <label for="logDate">記録する日</label>
-    <input type="date" id="logDate">
-    <span class="meta" id="logDateText"></span>
-  </div>
-
-  <section class="warmup">
-    <span class="label-head">ウォームアップ</span>
+  <section class="card warmup">
+    <span class="label-head"><svg class="ic acc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>ウォームアップ</span>
     <p>肩甲骨回し10回×2方向 → 最初の種目を無負荷〜軽負荷で1セット(15回)してから本セット開始</p>
   </section>
 
   <div id="exList"></div>
 
-  <section class="logtools">
+  <section class="card logtools">
     <span class="label-head">この日の記録</span>
     <p class="meta">重さと回数は、入力するとこのiPhone内に自動で保存されます。カレンダーには、その日の要約だけが入ります。</p>
     <div class="logtools-row">
@@ -705,6 +785,14 @@ const PROGRAM = {
 };
 
 const DAY_ORDER = ['mon','tue','thu','fri','sat'];
+const SVG = d => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>';
+const DAY_ICON = {
+  mon: SVG('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),
+  tue: SVG('<path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8.5z"/>'),
+  thu: SVG('<path d="M5 20V9l7-5 7 5v11M9 20v-6h6v6"/>'),
+  fri: SVG('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>'),
+  sat: SVG('<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/>'),
+};
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 function dateStr(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
@@ -771,6 +859,7 @@ function setsHtml(ex){
   }else{
     h += '<p class="prev">前回の記録はありません</p>';
   }
+  h += '<div class="setbox">';
   for(let i = 0; i < ex.sets; i++){
     const c = cur[i] || {};
     const pv = (prev && prev.sets[i]) || {};
@@ -784,7 +873,7 @@ function setsHtml(ex){
       + '<span class="u">' + u + '</span>'
       + '</div>';
   }
-  return h + '</div>';
+  return h + '</div></div>';
 }
 let timerInterval = null;
 
@@ -797,7 +886,7 @@ function renderDayTabs(){
     tab.type = 'button';
     tab.className = 'daytab' + (state.day===d ? ' is-current' : '');
     if(state.day===d) tab.setAttribute('aria-current','true');
-    tab.innerHTML = '<span class="dow">'+p.dow+'</span><span class="part">'+p.label+'</span>';
+    tab.innerHTML = DAY_ICON[d] + '<span class="dow">'+p.dow+'</span><span class="part">'+p.label+'</span>';
     tab.onclick = ()=>{ state.day = d; refresh(); window.scrollTo(0,0); };
     wrap.appendChild(tab);
   });
@@ -825,6 +914,7 @@ function renderExercises(){
         <span class="tag">${String(idx+1).padStart(2,'0')} ・ ${m.label}</span>
         ${ex.key ? '<span class="tag accent">重点</span>' : ''}
       </div>
+      <div class="card excard">
       <h3>${ex.name}</h3>
       <div class="ex-meta">
         <span class="it"><span class="mv">${ex.sets}</span><span class="ml">セット</span></span>
@@ -835,8 +925,9 @@ function renderExercises(){
       </div>
       ${ex.note ? `<p class="ex-note"><span class="label-head">ポイント</span>${ex.note}</p>` : ''}
       ${setsHtml(ex)}
+      </div>
       <div class="ex-actions">
-        <a href="${ytUrl}">▶ フォーム動画</a>
+        <a class="ytbtn" href="${ytUrl}">▶ フォーム動画</a>
         <button type="button" class="rest-btn" data-rest="${ex.rest}" data-name="${ex.name}">レスト開始 ${ex.rest}秒</button>
       </div>
     `;
