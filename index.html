@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-1">
+<meta name="app-version" content="2026-11-16-2">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング - トレーニング参照</title>
@@ -646,7 +646,7 @@ function buildCalendarParts(){
     if(parts.length) lines.push(shortName(ex.name) + '：' + parts.join('、'));
   });
   if(!lines.length) return null;
-  return { title: '筋トレ ' + p.label + '（' + p.part + '）', lines: lines };
+  return { title: '筋トレ ' + p.part, lines: lines };
 }
 function buildCalendarUrl(){
   const c = buildCalendarParts();
