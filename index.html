@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-12">
+<meta name="app-version" content="2026-11-16-13">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>FitMemo</title>
@@ -1654,8 +1654,7 @@ document.getElementById('ffOk').addEventListener('click', ()=>{
   if(!document.getElementById('ffSave').checked){ addEntry(v, 1); return; }
   const nf = Object.assign({ id:'f' + Date.now().toString(36), used:0 }, v);
   food.foods.push(nf); saveFood();
-  fm.sel = nf; document.getElementById('selQty').value = isGram(nf.unit) ? '100' : '1';
-  showPick();
+  showPick(); selectFood(nf);
 });
 document.getElementById('ffDel').addEventListener('click', ()=>{
   const g = food.foods.find(x => x.id === fm.editId); if(!g) return;
