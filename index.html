@@ -6,10 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-5">
+<meta name="app-version" content="2026-11-16-6">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
-<title>逆三角形メイキング</title>
+<title>ホームトレ</title>
+<meta name="apple-mobile-web-app-title" content="ホームトレ">
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap");
 
@@ -288,6 +289,8 @@ body{ padding-bottom:calc(var(--s8) + 88px + env(safe-area-inset-bottom, 0px)); 
 }
 .ex-actions .rest-btn:hover{ background:var(--accent); color:var(--accent-ink); }
 
+.resetbtn{ border:none; padding:0; font-size:.88rem; font-weight:500; color:var(--ink-mid); background:none; }
+.resetbtn:hover{ color:var(--accent); }
 .card.logtools{ border-top:1px solid var(--hairline-soft); padding-top:var(--s3); }
 .logtools #calBtn{ border-radius:999px; }
 
@@ -385,6 +388,7 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
 .wrow input:focus{ outline:none; border-bottom-color:var(--accent); }
 .wrow .wunit{ font-size:1rem; color:var(--ink-faint); }
 .wcard{ text-align:center; }
+.bfrow input{ font-size:2rem; width:6rem; }
 .chart svg{ width:100%; height:auto; display:block; }
 .chart .dot{ fill:var(--ink-faint); }
 .chart .avg{ fill:none; stroke:var(--accent); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
@@ -401,9 +405,7 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
 <div class="wrap">
 
   <header>
-    <span class="tag">TRAINING &amp; DIET</span>
-    <h1>逆三角形メイキング</h1>
-    <p class="meta">筋トレ・食事・体重をまとめて記録します。</p>
+    <h1>ホームトレ</h1>
     <div class="head-links">
       <button type="button" id="infoBtn">用語ガイド</button>
       <a id="chatBtn" href="https://claude.ai/chat/1dd7360e-bf86-4cc4-9ed9-ae2f1a9d3412">Claudeに相談</a>
@@ -422,6 +424,10 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
       <label for="logDate">記録する日</label>
       <input type="date" id="logDate">
       <span class="meta" id="logDateText"></span>
+    </div>
+    <div class="dirow">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>
+      <button type="button" class="resetbtn" id="resetBtn">この日の入力をリセット</button>
     </div>
   </section>
 
@@ -504,6 +510,9 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
       <span class="label-head">体重</span>
       <div class="wrow"><input type="text" inputmode="decimal" id="wInput" placeholder="-" autocomplete="off" aria-label="体重(kg)"><span class="wunit">kg</span></div>
       <p class="meta" id="wDiff" style="margin:0"></p>
+      <span class="label-head" style="margin-top:var(--s3)">体脂肪率</span>
+      <div class="wrow bfrow"><input type="text" inputmode="decimal" id="bfInput" placeholder="-" autocomplete="off" aria-label="体脂肪率(%)"><span class="wunit">%</span></div>
+      <p class="meta" id="bfDiff" style="margin:0"></p>
       <p class="meta" style="margin:var(--s1) 0 0">毎日同じ条件（風呂前）で測り、週平均で増減を見ます。</p>
     </section>
 
@@ -622,7 +631,9 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
       <dt>食事の記録</dt>
       <dd>下の「食事」を押し、朝・昼・夜・間食の「追加」から食品を選ぶ。初めての食品は「新しい食品を登録する」で、パッケージの栄養成分表示の数値を入れる。次からは選んで量を決めるだけになる。「前回と同じ」を押すと、直前にその食事で記録した内容をそのまま入れる。記録した食品を押すと量を変えられ、×で消せる。</dd>
       <dt>体重の記録</dt>
-      <dd>下の「体重」で、その日の体重を入れる。毎日同じ条件（風呂前）で測る。グラフの線と表は、週ごとの平均。</dd>
+      <dd>下の「体重」で、その日の体重と体脂肪率を入れる。毎日同じ条件（風呂前）で測る。グラフの線は直近7日の平均、表は週ごとの平均。体脂肪率は家庭用の体組成計だと1日の中でも大きく動くので、1日の値ではなく週平均の流れで見る。</dd>
+      <dt>この日の入力をリセット</dt>
+      <dd>筋トレ画面の上のカードにある。選んでいる日と曜日の入力だけを消す。前回までの記録は消えない。入力欄の薄い数字は前回の記録で、入力ではない。</dd>
       <dt>減量記録カレンダー</dt>
       <dd>食事か体重の画面で「Googleカレンダーに記録する」を押すと、その日の食事と体重がまとめて「減量記録」カレンダーに入る。Claudeとの減量のチャットで「今日の食事を見て」と送れば、カレンダーから読み取って答えられる。</dd>
       <dt>ユニラテラル種目</dt>
@@ -995,6 +1006,30 @@ dateInput.addEventListener('change', ()=>{
   refresh();
 });
 
+/* ===== この日の入力をリセット ===== */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  const p = PROGRAM[state.day];
+  const day = log[state.date] || {};
+  const ids = p.exercises.map(e => e.id).filter(id => day[id]);
+  if(!ids.length){ setNote(shortDate(state.date) + 'の' + p.label + 'には、消す入力がありません。薄い数字は前回の記録で、入力ではありません。'); return; }
+  if(!window.confirm(shortDate(state.date) + 'の' + p.label + 'の入力（' + ids.length + '種目）を消します。前回までの記録は消えません。')) return;
+  ids.forEach(id => delete day[id]);
+  if(!Object.keys(day).length) delete log[state.date];
+  saveLog(); refresh();
+  setNote(shortDate(state.date) + 'の入力をリセットしました。');
+});
+
+/* ===== 日付が変わったら今日に合わせる（開きっぱなし対策） ===== */
+let openedToday = dateStr(new Date());
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) return;
+  const now = dateStr(new Date());
+  if(now !== openedToday){
+    if(state.date === openedToday){ state.date = now; setNote(''); refresh(); }
+    openedToday = now;
+  }
+});
+
 /* ===== Googleカレンダーへ ===== */
 function shortName(name){ return name.replace(/（[^）]*）/g, ''); }
 function nextDay(str){ const d = parseDate(str); d.setDate(d.getDate() + 1); return dateStr(d); }
@@ -1089,7 +1124,7 @@ document.getElementById('calBtn').addEventListener('click', ()=>{
 /* ===== バックアップ ===== */
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   if(!Object.keys(log).length && !Object.keys(food.meals).length && !Object.keys(weight).length && !food.foods.length){ setNote('書き出す記録がありません。'); return; }
-  const json = JSON.stringify({ v:2, log:log, food:food, weight:weight, target:target });
+  const json = JSON.stringify({ v:2, log:log, food:food, weight:weight, bodyfat:bodyfat, target:target });
   const done = ()=> setNote('コピーしました。メモアプリなどに貼って保管してください。');
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(json).then(done).catch(()=>{ window.prompt('全体を選んでコピーし、保管してください', json); });
@@ -1113,8 +1148,9 @@ document.getElementById('importBtn').addEventListener('click', ()=>{
         o.food.foods.forEach(f=>{ if(f && f.id && !have.has(f.id)) food.foods.push(f); });
       }
       if(okDates(o.weight)) weight = Object.assign({}, weight, o.weight);
+      if(okDates(o.bodyfat)) bodyfat = Object.assign({}, bodyfat, o.bodyfat);
       if(o.target && typeof o.target === 'object') target = Object.assign({}, target, o.target);
-      saveFood(); saveJSON(WEIGHT_KEY, weight); saveJSON(TARGET_KEY, target);
+      saveFood(); saveJSON(WEIGHT_KEY, weight); saveJSON(BF_KEY, bodyfat); saveJSON(TARGET_KEY, target);
     }else{
       Object.keys(o).forEach(d=>{ if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error('bad'); });
       log = Object.assign({}, log, o);
@@ -1140,6 +1176,8 @@ let food = loadJSON(FOOD_KEY, {});
 if(!Array.isArray(food.foods)) food.foods = [];
 if(!isObj(food.meals)) food.meals = {};
 let weight = loadJSON(WEIGHT_KEY, {});
+const BF_KEY = 'hometore-bodyfat-v1';
+let bodyfat = loadJSON(BF_KEY, {});
 let target = Object.assign({ kcal:1850, p:110, f:45, c:250 }, loadJSON(TARGET_KEY, {}));
 function saveFood(){ return saveJSON(FOOD_KEY, food); }
 
@@ -1380,8 +1418,9 @@ document.getElementById('ffDel').addEventListener('click', ()=>{
 
 /* ---- 体重の画面 ---- */
 function weekStart(str){ const d = parseDate(str); const k = (d.getDay() + 6) % 7; d.setDate(d.getDate() - k); return dateStr(d); }
-function avgRange(from, to){
-  const v = Object.keys(weight).filter(d => d >= from && d <= to).map(d => num(weight[d])).filter(x => x > 0);
+function avgRange(from, to, src){
+  src = src || weight;
+  const v = Object.keys(src).filter(d => d >= from && d <= to).map(d => num(src[d])).filter(x => x > 0);
   return v.length ? { avg: v.reduce((a, b) => a + b, 0) / v.length, n: v.length } : null;
 }
 const wInput = document.getElementById('wInput');
@@ -1392,8 +1431,22 @@ wInput.addEventListener('change', ()=>{
   else { setDietNote('体重は kg の数字で入れてください。'); return; }
   saveJSON(WEIGHT_KEY, weight); renderWeight(); setDietNote('');
 });
+const bfInput = document.getElementById('bfInput');
+bfInput.addEventListener('change', ()=>{
+  const v = num(bfInput.value);
+  if(bfInput.value.trim() === ''){ delete bodyfat[state.date]; }
+  else if(v >= 2 && v <= 70){ bodyfat[state.date] = r1(v); }
+  else { setDietNote('体脂肪率は % の数字で入れてください。'); return; }
+  saveJSON(BF_KEY, bodyfat); renderWeight(); setDietNote('');
+});
 function renderWeight(){
   renderDateNav('w');
+  if(document.activeElement !== bfInput) bfInput.value = bodyfat[state.date] != null ? bodyfat[state.date] : '';
+  const bprev = Object.keys(bodyfat).filter(d => d < state.date).sort().pop();
+  const bcur = bodyfat[state.date];
+  document.getElementById('bfDiff').textContent = (bcur != null && bprev)
+    ? '前回（' + shortDate(bprev) + '）より ' + ((bcur - bodyfat[bprev]) >= 0 ? '+' : '') + r1(bcur - bodyfat[bprev]) + '%'
+    : (bprev ? '前回（' + shortDate(bprev) + '）は ' + bodyfat[bprev] + '%' : '');
   if(document.activeElement !== wInput) wInput.value = weight[state.date] != null ? weight[state.date] : '';
   const prev = Object.keys(weight).filter(d => d < state.date).sort().pop();
   const cur = weight[state.date];
@@ -1430,26 +1483,27 @@ function renderWeight(){
 
   // 週ごとの平均
   const rows = []; let ws = weekStart(state.date);
-  for(let k = 0; k < 9; k++){ const a = avgRange(ws, addDays(ws, 6)); rows.push({ ws, a }); ws = addDays(ws, -7); }
-  let th = '<tr><th>週</th><th class="n">平均</th><th class="n">前週比</th><th class="n">記録</th></tr>';
+  for(let k = 0; k < 9; k++){ const a = avgRange(ws, addDays(ws, 6)); const b = avgRange(ws, addDays(ws, 6), bodyfat); rows.push({ ws, a, b }); ws = addDays(ws, -7); }
+  let th = '<tr><th>週</th><th class="n">体重</th><th class="n">前週比</th><th class="n">体脂肪率</th></tr>';
   let tb = '';
   for(let k = 0; k < 8; k++){
     const r = rows[k], pr = rows[k + 1];
-    if(!r.a) continue;
-    const diff = pr.a ? r.a.avg - pr.a.avg : null;
+    if(!r.a && !r.b) continue;
+    const diff = (r.a && pr.a) ? r.a.avg - pr.a.avg : null;
     const s = parseDate(r.ws);
-    tb += '<tr><td>' + (s.getMonth() + 1) + '/' + s.getDate() + '〜</td><td class="n">' + r.a.avg.toFixed(1) + 'kg</td><td class="n">'
-      + (diff == null ? '-' : (diff >= 0 ? '+' : '') + diff.toFixed(1) + 'kg') + '</td><td class="n">' + r.a.n + '日</td></tr>';
+    tb += '<tr><td>' + (s.getMonth() + 1) + '/' + s.getDate() + '〜</td><td class="n">' + (r.a ? r.a.avg.toFixed(1) + 'kg' : '-') + '</td><td class="n">'
+      + (diff == null ? '-' : (diff >= 0 ? '+' : '') + diff.toFixed(1) + 'kg') + '</td><td class="n">' + (r.b ? r.b.avg.toFixed(1) + '%' : '-') + '</td></tr>';
   }
   document.getElementById('wTable').innerHTML = tb ? th + tb : '<tr><td class="meta">まだ記録がありません。</td></tr>';
 }
 
 /* ---- 減量記録カレンダー ---- */
 function buildDietParts(date){
-  const t = dayTotals(date), w = weight[date];
-  if(!t.n && w == null) return null;
+  const t = dayTotals(date), w = weight[date], bf = bodyfat[date];
+  if(!t.n && w == null && bf == null) return null;
   const head = ['減量'];
   if(w != null) head.push(num(w).toFixed(1) + 'kg');
+  if(bf != null) head.push(num(bf).toFixed(1) + '%');
   if(t.n) head.push(fmtInt(t.kcal) + 'kcal', 'P' + Math.round(t.p) + 'g');
   const lines = [];
   if(t.n){
@@ -1462,7 +1516,8 @@ function buildDietParts(date){
     });
   }
   if(w != null) lines.push('体重 ' + num(w).toFixed(1) + 'kg（風呂前）');
-  return { title: head.join(' ・ '), lines: lines, data: { meals: food.meals[date] || {}, w: w == null ? null : w } };
+  if(bf != null) lines.push('体脂肪率 ' + num(bf).toFixed(1) + '%');
+  return { title: head.join(' ・ '), lines: lines, data: { meals: food.meals[date] || {}, w: w == null ? null : w, bf: bf == null ? null : bf } };
 }
 function mergeDiet(remote){
   let n = 0;
@@ -1471,9 +1526,10 @@ function mergeDiet(remote){
     let got = false;
     if(!food.meals[d] && isObj(remote[d].meals) && Object.keys(remote[d].meals).length){ food.meals[d] = remote[d].meals; got = true; }
     if(weight[d] == null && remote[d].w != null && num(remote[d].w) > 0){ weight[d] = num(remote[d].w); got = true; }
+    if(bodyfat[d] == null && remote[d].bf != null && num(remote[d].bf) > 0){ bodyfat[d] = num(remote[d].bf); got = true; }
     if(got) n++;
   });
-  if(n){ saveFood(); saveJSON(WEIGHT_KEY, weight); }
+  if(n){ saveFood(); saveJSON(WEIGHT_KEY, weight); saveJSON(BF_KEY, bodyfat); }
   return n;
 }
 function dietToCalendar(){
