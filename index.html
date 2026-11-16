@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-10">
+<meta name="app-version" content="2026-11-16-11">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>FitMemo</title>
@@ -1385,18 +1385,21 @@ function loadMext(){
   if(MEXT) return Promise.resolve(MEXT);
   if(!mextLoading){
     mextLoading = fetch('foods-mext.json').then(r => r.json()).then(arr=>{
-      MEXT = arr.map(a => ({ name: a[0], disp: a[0].replace(/^＜[^＞]*＞\s*/, ''), kcal:a[1], p:a[2], f:a[3], c:a[4], unit:'100g', src:'mext', n: normKana(a[0]) }));
+      MEXT = arr.map(a => ({ name: a[0], disp: a[0].replace(/^＜[^＞]*＞\s*/, ''), kcal:a[1], p:a[2], f:a[3], c:a[4], unit:'100g', src:'mext', n: normKana(a[0]) + '｜' + normKana(readingOf(a[0])) }));
       return MEXT;
     }).catch(()=>{ mextLoading = null; return null; });
   }
   return mextLoading;
 }
+// 漢字で書かれた食品名に、よく使う読み方を足して検索できるようにする
+const READING = { '竹輪':'ちくわ', '豆腐':'とうふ', '納豆':'なっとう', '鶏卵':'たまご 玉子', '牛乳':'ぎゅうにゅう', '木綿':'もめん', '油揚げ':'あぶらあげ', '食パン':'しょくぱん', '精白米':'ごはん ご飯 白米', '玄米':'げんまい', 'にわとり':'鶏 鶏肉 とりにく', 'ぶた':'豚 豚肉', 'うし':'牛 牛肉', 'さけ':'鮭 サーモン', 'さば':'鯖', 'まぐろ':'鮪', 'かつお':'鰹', 'いわし':'鰯', 'あじ':'鯵', 'えび':'海老', 'いか':'烏賊', 'たこ':'蛸', 'こんにゃく':'蒟蒻', 'わかめ':'若布', 'のり':'海苔', '缶詰':'かんづめ 缶', 'じゃがいも':'馬鈴薯 ポテト', 'さつまいも':'薩摩芋', 'りんご':'林檎', 'みかん':'蜜柑', 'だいず':'大豆', 'こむぎ':'小麦', 'こめ':'米 お米' };
+function readingOf(name){ return Object.keys(READING).filter(k => name.includes(k)).map(k => READING[k]).join(' '); }
 function normKana(t){
   return String(t || '').toLowerCase()
     .replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60))
     .replace(/[\s　・\[\]［］（）()＜＞<>「」、,]/g, '');
 }
-const SYN = { '鶏':'にわとり', '鳥':'にわとり', '豚':'ぶた', '牛':'うし', 'ご飯':'めし', 'ごはん':'めし', '白米':'めし', '卵':'鶏卵', 'たまご':'鶏卵', 'ゆで卵':'鶏卵 ゆで', '肉':'', 'お米':'こめ', '米':'こめ', 'パスタ':'マカロニ・スパゲッティ', 'スパゲティ':'スパゲッティ', 'ツナ':'まぐろ 缶詰', 'サバ缶':'さば 缶詰', '鯖':'さば', '鮭':'さけ', '豆腐':'とうふ', '牛乳':'普通牛乳', 'ヨーグルト':'ヨーグルト', 'バナナ':'バナナ', 'オートミール':'オートミール' };
+const SYN = { '鶏':'にわとり', '鳥':'にわとり', '豚':'ぶた', '牛':'うし', 'ご飯':'水稲めし', 'ごはん':'水稲めし', '白米':'水稲めし', '豚こま':'ぶた 大型種肉 かた 脂身つき', '豚こま切れ':'ぶた 大型種肉 かた 脂身つき', '牛こま':'うし 乳用肥育牛肉 かた 脂身つき', 'ひき肉':'ひき肉', '鶏ひき肉':'にわとり ひき肉', '豚ひき肉':'ぶた ひき肉', '卵':'鶏卵', 'たまご':'鶏卵', 'ゆで卵':'鶏卵 ゆで', '肉':'', 'お米':'こめ', '米':'こめ', 'パスタ':'マカロニ・スパゲッティ', 'スパゲティ':'スパゲッティ', 'ツナ':'まぐろ 缶詰', 'サバ缶':'さば 缶詰', '鯖':'さば', '鮭':'さけ', '豆腐':'とうふ', '牛乳':'普通牛乳', 'ヨーグルト':'ヨーグルト', 'バナナ':'バナナ', 'オートミール':'オートミール' };
 function queryTokens(q){
   const out = [];
   String(q).split(/[\s　]+/).filter(Boolean).forEach(w=>{
@@ -1414,8 +1417,8 @@ function searchMext(q, limit){
   const toks = queryTokens(q);
   if(!toks.length) return [];
   const hit = MEXT.filter(m => toks.every(t => m.n.includes(t)));
-  const BOOST = ['若どり', '精白米うるち米', '糸引き', '全卵生', '普通牛乳', 'もめん', '大型種肉', '乳用肥育牛肉'].map(normKana);
-  const sc = m => (BOOST.some(x => m.n.includes(x)) ? 2 : 0) + (m.n.endsWith(normKana('生')) ? 1 : 0);
+  const BOOST = ['若どり', '精白米うるち米', '糸引き', '全卵生', '普通牛乳', '木綿豆腐', '大型種肉', '乳用肥育牛肉', '焼き竹輪'].map(normKana);
+  const sc = m => (BOOST.some(x => m.n.includes(x)) ? 2 : 0) + (m.n.split('｜')[0].endsWith(normKana('生')) ? 1 : 0);
   hit.sort((a, b) => (sc(b) - sc(a)) || a.n.length - b.n.length);
   return hit.slice(0, limit || 40);
 }
