@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-11">
+<meta name="app-version" content="2026-11-16-12">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>FitMemo</title>
@@ -407,6 +407,8 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
 .qtyrow button{ border-radius:999px; padding:4px 14px; font-weight:500; border-color:var(--hairline); }
 .qtyrow input{ width:4.5rem; font:inherit; font-size:1.05rem; color:var(--ink); background:none; border:0; border-bottom:1px solid var(--hairline); text-align:right; padding:4px 0; }
 .danger{ color:var(--accent); }
+.pcrow input{ width:4rem; font:inherit; font-size:1rem; color:var(--ink); background:none; border:0; border-bottom:1px solid var(--hairline); text-align:right; padding:2px 0; margin:0 4px; }
+.pcrow input:focus{ outline:none; border-bottom-color:var(--accent); }
 
 .wrow{ display:flex; align-items:baseline; justify-content:center; gap:var(--s1); margin:var(--s1) 0; }
 .wrow input{
@@ -581,11 +583,16 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
       <section class="card" id="selPanel" hidden>
         <p class="selname" id="selName"></p>
         <p class="meta" id="selInfo" style="margin:0"></p>
+        <div class="seg" id="modeSeg" style="margin-top:var(--s2)" hidden>
+          <button type="button" data-mode="g">グラム</button>
+          <button type="button" data-mode="pc">個数</button>
+        </div>
         <div class="qtyrow">
           <span id="qtyBtns" style="display:contents"></span>
           <input type="text" inputmode="decimal" id="selQty" value="1" aria-label="量">
           <span class="meta" id="selUnit"></span>
         </div>
+        <p class="meta pcrow" id="pcRow" hidden>1<span id="pcWord1">個</span> ＝ <input type="text" inputmode="decimal" id="pcG" aria-label="1つあたりのグラム数"> g<span id="pcNote"></span></p>
         <p class="meta" id="selCalc"></p>
         <button type="button" class="primary" id="selAdd">追加する</button>
       </section>
@@ -648,7 +655,7 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
       <dt>Googleカレンダーに記録する</dt>
       <dd>ページ下のボタンを押すと、Googleカレンダーの予定の作成画面が、その日の種目と重さ・回数の要約つきで開く。保存を押すと、終日の予定として残る。カレンダーから、アプリに記録は戻らない。</dd>
       <dt>食事の記録</dt>
-      <dd>下の「食事」を押し、朝・昼・夜・間食の「追加」から食品を選ぶ。検索欄に食品名を入れると、登録した食品と、国の食品成分表（八訂増補2023年、約2,500品目）の候補が出る。成分表の食品は100gあたりの数値なので、量はグラムで入れる。一度使った成分表の食品は、次から「登録した食品」に出る。商品は「新しい食品を登録する」で、パッケージの栄養成分表示の数値を入れる。次からは選んで量を決めるだけになる。「前回と同じ」を押すと、直前にその食事で記録した内容をそのまま入れる。記録した食品を押すと量を変えられ、×で消せる。</dd>
+      <dd>下の「食事」を押し、朝・昼・夜・間食の「追加」から食品を選ぶ。検索欄に食品名を入れると、登録した食品と、国の食品成分表（八訂増補2023年、約2,500品目）の候補が出る。成分表の食品は100gあたりの数値なので、量はグラムで入れる。「個数」に切り替えると、1つの重さ×個数で計算する。卵・納豆・ちくわなどは1つの重さの目安が最初から入っている。量って違えば書き換えると、次からその値を使う。一度使った成分表の食品は、次から「登録した食品」に出る。商品は「新しい食品を登録する」で、パッケージの栄養成分表示の数値を入れる。次からは選んで量を決めるだけになる。「前回と同じ」を押すと、直前にその食事で記録した内容をそのまま入れる。記録した食品を押すと量を変えられ、×で消せる。</dd>
       <dt>体重の記録</dt>
       <dd>下の「体重」で、その日の体重と体脂肪率を入れる。毎日同じ条件（風呂前）で測る。グラフの線は直近7日の平均、表は週ごとの平均。体脂肪率は家庭用の体組成計だと1日の中でも大きく動くので、1日の値ではなく週平均の流れで見る。</dd>
       <dt>この日の入力をリセット</dt>
@@ -1345,12 +1352,15 @@ function renderDiet(){
   wrap.querySelectorAll('.en').forEach(b => b.addEventListener('click', ()=>{
     const arr = (food.meals[state.date] || {})[b.dataset.meal]; if(!arr) return;
     const e = arr[parseInt(b.dataset.i, 10)]; if(!e) return;
-    const g = isGram(e.unit);
-    const v = window.prompt(e.name + (g ? 'の量（g）' : 'の量（' + (e.unit || '1食') + 'を1として）'), String(g ? Math.round(num(e.q) * 100) : r1(num(e.q))));
+    const g = isGram(e.unit), pcs = num(e.pc);
+    const label = pcs > 0 ? 'の数（' + (e.pw || '個') + '）' : g ? 'の量（g）' : 'の量（' + (e.unit || '1食') + 'を1として）';
+    const cur = pcs > 0 ? r1(pcs) : g ? Math.round(num(e.q) * 100) : r1(num(e.q));
+    const v = window.prompt(e.name + label, String(cur));
     if(v === null) return;
-    const q = num(v) / (g ? 100 : 1);
+    const n = num(v);
+    const q = pcs > 0 ? num(e.q) / pcs * n : n / (g ? 100 : 1);
     if(q <= 0){ arr.splice(parseInt(b.dataset.i, 10), 1); cleanDay(state.date); }
-    else e.q = rq(q);
+    else { e.q = rq(q); if(pcs > 0) e.pc = r1(n); }
     saveFood(); renderDiet();
   }));
 
@@ -1424,7 +1434,21 @@ function searchMext(q, limit){
 }
 const isGram = u => /^100\s*g$/i.test(String(u || '').trim());
 const rq = q => Math.round(q * 1000) / 1000;
-function qtyLabel(e){ const q = num(e.q); return isGram(e.unit) ? Math.round(q * 100) + 'g' : (q !== 1 ? '×' + r1(q) : ''); }
+function qtyLabel(e){
+  const q = num(e.q);
+  if(e.pc) return r1(num(e.pc)) + (e.pw || '個') + '（' + Math.round(q * 100) + 'g）';
+  return isGram(e.unit) ? Math.round(q * 100) + 'g' : (q !== 1 ? '×' + r1(q) : '');
+}
+// 1つあたりの重さの目安（可食部）。量って違えば、画面で書き換えると次からその値を使う
+const PIECE = [
+  ['鶏卵 全卵', 50, '個'], ['糸引き納豆', 45, 'パック'], ['挽きわり納豆', 45, 'パック'], ['焼き竹輪', 30, '本'],
+  ['バナナ 生', 100, '本'], ['角形食パン 食パン', 60, '枚'], ['ウインナーソーセージ', 20, '本'], ['ささみ 生', 50, '本']
+];
+function pieceOf(f){
+  if(num(f.piece) > 0) return { g:num(f.piece), w:f.pw || '個', known:true };
+  const hit = PIECE.find(x => String(f.name).includes(x[0]));
+  return hit ? { g:hit[1], w:hit[2], known:false } : null;
+}
 
 /* ---- 食品を選ぶ画面 ---- */
 const fm = { meal:'b', sel:null, editId:null };
@@ -1477,26 +1501,54 @@ function renderFoodList(){
 }
 function selectFood(f){
   fm.sel = f;
-  document.getElementById('selQty').value = f && isGram(f.unit) ? '100' : '1';
+  const pc = f && isGram(f.unit) ? pieceOf(f) : null;
+  fm.mode = (f && isGram(f.unit)) ? ((f.pmode === 'pc' || (!f.pmode && pc)) ? 'pc' : 'g') : 'x';
+  fm.pg = pc ? pc.g : '';
+  fm.pw = pc ? pc.w : '個';
+  fm.pknown = pc ? pc.known : false;
+  document.getElementById('pcG').value = fm.pg;
+  document.getElementById('selQty').value = fm.mode === 'g' ? '100' : '1';
   renderSel(); foodModal.scrollTop = 0;
 }
+function selQ(){
+  const v = num(document.getElementById('selQty').value);
+  if(fm.mode === 'g') return v / 100;
+  if(fm.mode === 'pc') return v * num(fm.pg) / 100;
+  return v;
+}
+document.getElementById('modeSeg').addEventListener('click', e=>{
+  const b = e.target.closest('[data-mode]'); if(!b || !fm.sel) return;
+  const cur = selQ();
+  fm.mode = b.dataset.mode;
+  if(fm.mode === 'pc' && num(fm.pg) <= 0){ document.getElementById('selQty').value = '1'; }
+  else if(fm.mode === 'pc'){ document.getElementById('selQty').value = String(r1(Math.max(1, Math.round(cur * 100 / num(fm.pg))))); }
+  else { document.getElementById('selQty').value = String(Math.round(cur * 100) || 100); }
+  renderSel();
+});
+document.getElementById('pcG').addEventListener('input', e=>{ fm.pg = num(e.target.value) || ''; fm.pknown = true; renderSel(); });
 function renderSel(){
   const panel = document.getElementById('selPanel');
   if(!fm.sel){ panel.hidden = true; return; }
   panel.hidden = false;
-  const f = fm.sel, g = isGram(f.unit), q = num(document.getElementById('selQty').value) / (g ? 100 : 1);
+  const f = fm.sel, mode = fm.mode, q = selQ();
   document.getElementById('selName').textContent = f.name;
   document.getElementById('selInfo').textContent = foodInfo(f);
-  document.getElementById('selUnit').textContent = g ? 'g' : '× ' + (f.unit || '1食');
+  const seg = document.getElementById('modeSeg');
+  seg.hidden = mode === 'x';
+  seg.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  document.getElementById('pcRow').hidden = mode !== 'pc';
+  document.getElementById('pcWord1').textContent = fm.pw;
+  document.getElementById('pcNote').textContent = num(fm.pg) <= 0 ? '（1つの重さを入れてください）' : (fm.pknown ? '' : '（目安です。量って違えば書き換えてください）');
+  document.getElementById('selUnit').textContent = mode === 'g' ? 'g' : mode === 'pc' ? fm.pw : '× ' + (f.unit || '1食');
   const qb = document.getElementById('qtyBtns');
-  const want = g ? 'g' : 'x';
-  if(qb.dataset.mode !== want){
-    qb.dataset.mode = want;
-    qb.innerHTML = (g ? ['50','100','150','200'] : ['0.5','1','1.5','2']).map(v => '<button type="button" data-q="' + v + '">' + v + (g ? 'g' : '') + '</button>').join('');
+  if(qb.dataset.mode !== mode){
+    qb.dataset.mode = mode;
+    const vals = mode === 'g' ? ['50','100','150','200'] : mode === 'pc' ? ['1','2','3','4'] : ['0.5','1','1.5','2'];
+    qb.innerHTML = vals.map(v => '<button type="button" data-q="' + v + '">' + v + (mode === 'g' ? 'g' : '') + '</button>').join('');
   }
   document.getElementById('selCalc').textContent = q > 0
-    ? '合計 ' + fmtInt(num(f.kcal)*q) + 'kcal ・ P' + r1(num(f.p)*q) + 'g ・ F' + r1(num(f.f)*q) + 'g ・ C' + r1(num(f.c)*q) + 'g'
-    : '量を入れてください';
+    ? '合計 ' + fmtInt(num(f.kcal)*q) + 'kcal ・ P' + r1(num(f.p)*q) + 'g ・ F' + r1(num(f.f)*q) + 'g ・ C' + r1(num(f.c)*q) + 'g' + (mode === 'pc' ? '（約' + Math.round(q * 100) + 'g）' : '')
+    : (mode === 'pc' && num(fm.pg) <= 0 ? '1つの重さを入れると計算します' : '量を入れてください');
 }
 document.getElementById('selQty').addEventListener('input', renderSel);
 document.getElementById('qtyBtns').addEventListener('click', e=>{
@@ -1508,7 +1560,7 @@ document.getElementById('fmSearch').addEventListener('input', ()=>{
   if(!MEXT) loadMext().then(renderFoodList);
 });
 document.getElementById('fmClose').addEventListener('click', closePicker);
-function addEntry(f, q){
+function addEntry(f, q, extra){
   const day = food.meals[state.date] = food.meals[state.date] || {};
   if(f.src === 'mext' && !f.id){
     // 成分表から選んだ食品は、次から「登録した食品」にすぐ出るように登録しておく
@@ -1516,16 +1568,25 @@ function addEntry(f, q){
     if(!g){ g = { id:'f' + Date.now().toString(36), name:f.name, unit:'100g', kcal:f.kcal, p:f.p, f:f.f, c:f.c, used:0, src:'mext' }; food.foods.push(g); }
     f = g;
   }
-  (day[fm.meal] = day[fm.meal] || []).push({ fid:f.id || '', name:f.name, unit:f.unit || '', q:rq(q), kcal:num(f.kcal), p:num(f.p), f:num(f.f), c:num(f.c) });
-  if(f.id){ const g = food.foods.find(x => x.id === f.id); if(g) g.used = num(g.used) + 1; }
+  (day[fm.meal] = day[fm.meal] || []).push(Object.assign({ fid:f.id || '', name:f.name, unit:f.unit || '', q:rq(q), kcal:num(f.kcal), p:num(f.p), f:num(f.f), c:num(f.c) }, extra || {}));
+  if(f.id){
+    const g = food.foods.find(x => x.id === f.id);
+    if(g){
+      g.used = num(g.used) + 1;
+      if(isGram(g.unit) && fm.sel){
+        g.pmode = fm.mode === 'pc' ? 'pc' : 'g';
+        if(fm.mode === 'pc' && num(fm.pg) > 0){ g.piece = num(fm.pg); g.pw = fm.pw; }
+      }
+    }
+  }
   saveFood(); closePicker(); renderDiet();
   setDietNote(f.name + 'を' + MEALS.find(x => x.k === fm.meal).label + 'に追加しました。');
 }
 document.getElementById('selAdd').addEventListener('click', ()=>{
   if(!fm.sel) return;
-  const q = num(document.getElementById('selQty').value) / (isGram(fm.sel.unit) ? 100 : 1);
+  const q = selQ();
   if(q <= 0) return;
-  addEntry(fm.sel, q);
+  addEntry(fm.sel, q, fm.mode === 'pc' ? { pc: r1(num(document.getElementById('selQty').value)), pw: fm.pw } : null);
 });
 
 /* ---- 食品の登録・編集 ---- */
