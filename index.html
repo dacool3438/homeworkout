@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-4">
+<meta name="app-version" content="2026-11-16-5">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>逆三角形メイキング</title>
@@ -730,7 +730,7 @@ const PROGRAM = {
     ]
   },
   tue: {
-    dow:'火', label:'Lower + Glute', part:'脚・お尻・腹筋',
+    dow:'火', label:'Lower + Glute', tab:'Lower', part:'脚・お尻・腹筋',
     exercises: [
       { id:'tue1', name:'ブルガリアンスクワット', muscle:'legs', sets:3, reps:'10-12/脚', rir:'2', tempo:'2010', rest:90, yt:'ブルガリアンスクワット フォーム' },
       { id:'tue2', name:'ルーマニアンデッドリフト', muscle:'legs', sets:4, reps:'10-15', rir:'1-2', tempo:'3010', rest:90, yt:'ダンベル ルーマニアンデッドリフト フォーム' },
@@ -886,7 +886,7 @@ function renderDayTabs(){
     tab.type = 'button';
     tab.className = 'daytab' + (state.day===d ? ' is-current' : '');
     if(state.day===d) tab.setAttribute('aria-current','true');
-    tab.innerHTML = DAY_ICON[d] + '<span class="dow">'+p.dow+'</span><span class="part">'+p.label+'</span>';
+    tab.innerHTML = DAY_ICON[d] + '<span class="dow">'+p.dow+'</span><span class="part">'+(p.tab||p.label)+'</span>';
     tab.onclick = ()=>{ state.day = d; refresh(); window.scrollTo(0,0); };
     wrap.appendChild(tab);
   });
