@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="app-version" content="2026-11-16-7">
+<meta name="app-version" content="2026-11-16-8">
 <meta name="theme-color" content="#F3E9DC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#231B18" media="(prefers-color-scheme: dark)">
 <title>FitMemo</title>
@@ -249,6 +249,31 @@ body{ padding-bottom:calc(var(--s8) + 88px + env(safe-area-inset-bottom, 0px)); 
 .dayinfo h2, #dayName{ margin:0 0 var(--s1); padding-bottom:var(--s2); border-bottom:1px solid var(--hairline-soft); font-size:1.3rem; }
 .dirow{ display:flex; align-items:center; gap:10px; padding:10px 0; font-size:.9rem; color:var(--ink-mid); }
 .dirow + .dirow{ border-top:1px solid var(--hairline-soft); }
+.ditext{ font-size:.85rem; color:var(--ink-mid); padding-right:10px; border-right:1px solid var(--hairline); }
+.dayinfo .logdate strong{ font-size:1rem; }
+
+/* ===== 週／月のカレンダー ===== */
+.calcard{ padding:var(--s2); margin:0 0 var(--s2); }
+header{ margin-bottom:var(--s3); }
+.seg{ display:flex; background:var(--hairline-soft); border-radius:999px; padding:3px; }
+.seg button{ flex:1; border:none; border-radius:999px; padding:6px 0; font-size:.85rem; font-weight:500; color:var(--ink-mid); background:none; line-height:1.5; }
+.seg button[aria-pressed="true"]{ background:var(--card); color:var(--ink); font-weight:700; box-shadow:0 1px 4px rgba(62,39,35,.12); }
+.calnav{ display:flex; align-items:center; justify-content:space-between; margin:var(--s1) 0 4px; }
+.calnav .arrow{ border:none; font-size:1.4rem; line-height:1; padding:6px var(--s2); color:var(--ink-mid); font-weight:400; }
+.caltitle{ font-family:var(--font-head); font-weight:700; color:var(--ink); font-size:1rem; }
+.calgrid{ display:grid; grid-template-columns:repeat(7, 1fr); row-gap:2px; text-align:center; }
+.calgrid .dw{ font-size:.72rem; color:var(--ink-faint); padding:2px 0 4px; }
+.cd{ border:none; padding:2px 0 0; background:none; display:flex; flex-direction:column; align-items:center; gap:2px; font-weight:500; color:var(--ink); line-height:1; }
+.cd:hover{ color:var(--ink); }
+.cd .n{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums; font-size:.95rem; }
+.cd.out{ opacity:.35; }
+.cd.today .n{ box-shadow:inset 0 0 0 1.5px var(--accent); color:var(--accent); }
+.cd.sel .n{ background:var(--accent); color:var(--accent-ink); box-shadow:none; }
+.cd .dot{ width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:0; }
+.cd.has .dot{ opacity:.75; }
+.calfoot{ display:flex; align-items:center; justify-content:space-between; margin-top:var(--s1); padding-top:var(--s1); border-top:1px solid var(--hairline-soft); font-size:.85rem; color:var(--ink-mid); }
+.calfoot strong{ color:var(--ink); }
+.calfoot button{ border:none; padding:4px 0; font-size:.82rem; font-weight:500; color:var(--accent); background:none; }
 .dayinfo .logdate{ margin:0; flex-wrap:wrap; gap:4px 10px; }
 .dayinfo .logdate label{ font-size:.85rem; letter-spacing:0; color:var(--ink-mid); padding-right:10px; border-right:1px solid var(--hairline); }
 .dayinfo .logdate input{ border-bottom:none; min-width:0; font-size:1.05rem; padding:0; }
@@ -414,6 +439,7 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
   </header>
 
   <main id="viewTrain">
+  <section class="card calcard" id="calTrain" aria-label="記録する日を選ぶ"></section>
   <nav class="daybar" id="dayTabs" aria-label="曜日"></nav>
 
   <section class="card dayinfo">
@@ -421,9 +447,8 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
     <div class="dirow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span id="daySub">-</span></div>
     <div class="dirow logdate">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>
-      <label for="logDate">記録する日</label>
-      <input type="date" id="logDate">
-      <span class="meta" id="logDateText"></span>
+      <span class="ditext">記録する日</span>
+      <strong id="logDateText"></strong>
     </div>
     <div class="dirow">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>
@@ -455,11 +480,7 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
 
   <!-- 食事 -->
   <main id="viewDiet" hidden>
-    <div class="dnav">
-      <button type="button" class="arrow" id="dPrev" aria-label="前の日">‹</button>
-      <span class="dlabel"><span id="dLabel">今日</span><input type="date" id="dDate" aria-label="日付を選ぶ"></span>
-      <button type="button" class="arrow" id="dNext" aria-label="次の日">›</button>
-    </div>
+    <section class="card calcard" id="calDiet" aria-label="日付を選ぶ"></section>
 
     <section class="card">
       <div class="ringwrap" id="ringWrap">
@@ -500,11 +521,7 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
 
   <!-- 体重 -->
   <main id="viewWeight" hidden>
-    <div class="dnav">
-      <button type="button" class="arrow" id="wPrev" aria-label="前の日">‹</button>
-      <span class="dlabel"><span id="wLabel">今日</span><input type="date" id="wDate" aria-label="日付を選ぶ"></span>
-      <button type="button" class="arrow" id="wNext" aria-label="次の日">›</button>
-    </div>
+    <section class="card calcard" id="calWeight" aria-label="日付を選ぶ"></section>
 
     <section class="card wcard">
       <span class="label-head">体重</span>
@@ -633,9 +650,11 @@ details.targets summary{ cursor:pointer; font-size:.85rem; font-weight:500; colo
       <dt>体重の記録</dt>
       <dd>下の「体重」で、その日の体重と体脂肪率を入れる。毎日同じ条件（風呂前）で測る。グラフの線は直近7日の平均、表は週ごとの平均。体脂肪率は家庭用の体組成計だと1日の中でも大きく動くので、1日の値ではなく週平均の流れで見る。</dd>
       <dt>この日の入力をリセット</dt>
-      <dd>筋トレ画面の上のカードにある。選んでいる日と曜日の入力だけを消す。前回までの記録は消えない。入力欄の薄い数字は前回の記録で、入力ではない。</dd>
+      <dd>筋トレ画面の、種目の上のカードにある。選んでいる日と曜日の入力だけを消す。前回までの記録は消えない。入力欄の薄い数字は前回の記録で、入力ではない。</dd>
       <dt>減量記録カレンダー</dt>
       <dd>食事か体重の画面で「Googleカレンダーに記録する」を押すと、その日の食事と体重がまとめて「減量記録」カレンダーに入る。Claudeとの減量のチャットで「今日の食事を見て」と送れば、カレンダーから読み取って答えられる。</dd>
+      <dt>日付の選び方</dt>
+      <dd>各画面の上のカレンダーで日付を押す。「週」と「月」で表示を切り替えられる。‹ › で前後の週や月に移る。日付の下の点は、その日に記録がある印。筋トレ画面では、選んだ日の曜日に合わせてメニューも切り替わる（水・土は休養日なので切り替わらない）。</dd>
       <dt>ユニラテラル種目</dt>
       <dd>片手・片脚で行う種目。左右別に効かせられるため、軽いダンベルでも負荷を高めやすい。</dd>
       <dt>週のスケジュール</dt>
@@ -811,7 +830,7 @@ const DOW_JA = ['日','月','火','水','木','金','土'];
 function parseDate(str){ const a = str.split('-'); return new Date(+a[0], +a[1]-1, +a[2]); }
 function shortDate(str){ const d = parseDate(str); return (d.getMonth()+1) + '/' + d.getDate() + '（' + DOW_JA[d.getDay()] + '）'; }
 
-let state = { day: 'mon', date: dateStr(new Date()) };
+let state = { day: ({1:'mon',2:'tue',4:'thu',5:'fri',0:'sat'})[new Date().getDay()] || 'mon', date: dateStr(new Date()) };
 
 /* ===== 記録（このiPhone内のlocalStorageに保存） ===== */
 const LOG_KEY = 'hometore-log-v1';
@@ -995,16 +1014,80 @@ document.getElementById('modalCloseTop').addEventListener('click', closeModal);
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); closeTimer(); document.getElementById('foodModal').classList.remove('show'); } });
 
 /* ===== 記録する日 ===== */
-const dateInput = document.getElementById('logDate');
 function renderDate(){
-  dateInput.value = state.date;
   document.getElementById('logDateText').textContent = shortDate(state.date);
+  renderCal('calTrain', 'train');
 }
-dateInput.addEventListener('change', ()=>{
-  if(/^\d{4}-\d{2}-\d{2}$/.test(dateInput.value)){ state.date = dateInput.value; }
-  setNote('');
-  refresh();
-});
+
+/* ===== 週／月のカレンダー（3画面共通） ===== */
+const CALMODE_KEY = 'hometore-calmode';
+let calMode = (function(){ try{ return localStorage.getItem(CALMODE_KEY) === 'month' ? 'month' : 'week'; }catch(e){ return 'week'; } })();
+let calCursor = state.date;
+const DOW_KEY = { 1:'mon', 2:'tue', 4:'thu', 5:'fri', 0:'sat' };
+function dayKeyOf(str){ return DOW_KEY[parseDate(str).getDay()] || null; }
+function pickDate(d){
+  state.date = d; calCursor = d;
+  const k = dayKeyOf(d); if(k) state.day = k;
+  setNote(''); refresh();
+}
+function hasRecord(kind, d){
+  try{
+    if(kind === 'train') return !!log[d];
+    if(kind === 'diet') return !!food.meals[d];
+    return weight[d] != null || bodyfat[d] != null;
+  }catch(e){ return false; }
+}
+function mondayOf(str){ const d = parseDate(str); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return dateStr(d); }
+function renderCal(id, kind){
+  const box = document.getElementById(id); if(!box) return;
+  const today = dateStr(new Date());
+  const cur = parseDate(calCursor);
+  let days = [], title = '', monthNo = cur.getMonth();
+  if(calMode === 'week'){
+    const m = mondayOf(calCursor);
+    for(let i = 0; i < 7; i++) days.push(addDays(m, i));
+    const a = parseDate(days[0]), b = parseDate(days[6]);
+    title = a.getFullYear() + '年' + (a.getMonth() + 1) + '月' + a.getDate() + '日〜' + (a.getMonth() === b.getMonth() ? '' : (b.getMonth() + 1) + '月') + b.getDate() + '日';
+  }else{
+    const first = dateStr(new Date(cur.getFullYear(), cur.getMonth(), 1));
+    let d = mondayOf(first);
+    do{ for(let i = 0; i < 7; i++){ days.push(d); d = addDays(d, 1); } }while(parseDate(d).getMonth() === monthNo);
+    title = cur.getFullYear() + '年' + (monthNo + 1) + '月';
+  }
+  let h = '<div class="seg" role="group" aria-label="表示の切り替え">'
+    + '<button type="button" data-cm="week" aria-pressed="' + (calMode === 'week') + '">週</button>'
+    + '<button type="button" data-cm="month" aria-pressed="' + (calMode === 'month') + '">月</button></div>'
+    + '<div class="calnav"><button type="button" class="arrow" data-step="-1" aria-label="前へ">‹</button>'
+    + '<span class="caltitle">' + title + '</span>'
+    + '<button type="button" class="arrow" data-step="1" aria-label="次へ">›</button></div>'
+    + '<div class="calgrid">' + ['月','火','水','木','金','土','日'].map(x => '<span class="dw">' + x + '</span>').join('');
+  days.forEach(d=>{
+    const dd = parseDate(d);
+    const cls = ['cd'];
+    if(d === state.date) cls.push('sel');
+    if(d === today) cls.push('today');
+    if(calMode === 'month' && dd.getMonth() !== monthNo) cls.push('out');
+    if(hasRecord(kind, d)) cls.push('has');
+    h += '<button type="button" class="' + cls.join(' ') + '" data-d="' + d + '" aria-label="' + shortDate(d) + (d === state.date ? '（選択中）' : '') + '">'
+      + '<span class="n">' + dd.getDate() + '</span><span class="dot"></span></button>';
+  });
+  h += '</div><div class="calfoot"><span><strong>' + (state.date === today ? '今日' : '') + '</strong>' + (state.date === today ? '（' + shortDate(state.date) + '）' : shortDate(state.date)) + 'を表示中</span>'
+    + (state.date !== today || mondayOf(calCursor) !== mondayOf(today) ? '<button type="button" data-today="1">今日に戻る</button>' : '') + '</div>';
+  box.innerHTML = h;
+  box.querySelectorAll('[data-cm]').forEach(b => b.addEventListener('click', ()=>{
+    calMode = b.dataset.cm; calCursor = state.date;
+    try{ localStorage.setItem(CALMODE_KEY, calMode); }catch(e){}
+    refresh();
+  }));
+  box.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', ()=>{
+    const n = parseInt(b.dataset.step, 10);
+    if(calMode === 'week') calCursor = addDays(calCursor, 7 * n);
+    else{ const c = parseDate(calCursor); calCursor = dateStr(new Date(c.getFullYear(), c.getMonth() + n, 1)); }
+    refresh();
+  }));
+  box.querySelectorAll('[data-d]').forEach(b => b.addEventListener('click', ()=> pickDate(b.dataset.d)));
+  const t = box.querySelector('[data-today]'); if(t) t.addEventListener('click', ()=> pickDate(today));
+}
 
 /* ===== この日の入力をリセット ===== */
 document.getElementById('resetBtn').addEventListener('click', ()=>{
@@ -1025,7 +1108,7 @@ document.addEventListener('visibilitychange', ()=>{
   if(document.hidden) return;
   const now = dateStr(new Date());
   if(now !== openedToday){
-    if(state.date === openedToday){ state.date = now; setNote(''); refresh(); }
+    if(state.date === openedToday){ pickDate(now); }
     openedToday = now;
   }
 });
@@ -1206,15 +1289,9 @@ function cleanDay(date){
 }
 
 /* ---- 日付の切り替え（食事・体重） ---- */
-function bindDateNav(px){
-  document.getElementById(px + 'Prev').addEventListener('click', ()=>{ state.date = addDays(state.date, -1); refresh(); });
-  document.getElementById(px + 'Next').addEventListener('click', ()=>{ state.date = addDays(state.date, 1); refresh(); });
-  const inp = document.getElementById(px + 'Date');
-  inp.addEventListener('change', ()=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(inp.value)){ state.date = inp.value; refresh(); } });
-}
+function bindDateNav(px){}
 function renderDateNav(px){
-  document.getElementById(px + 'Date').value = state.date;
-  document.getElementById(px + 'Label').textContent = state.date === dateStr(new Date()) ? '今日' : shortDate(state.date);
+  if(px === 'd') renderCal('calDiet', 'diet'); else renderCal('calWeight', 'weight');
 }
 
 /* ---- 食事の画面 ---- */
